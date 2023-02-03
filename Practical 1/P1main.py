@@ -39,3 +39,4 @@ def plot1():
 
 
 if __name__ == "__main__":
+  plot1()
