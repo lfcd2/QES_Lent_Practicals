@@ -3,8 +3,9 @@ from matplotlib import pyplot as plt
 
 
 def plot_graph():
-    fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 15), sharex=True)
-
+    fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(10, 12), sharex=True)
+    plt.suptitle('North and South hemisphere temperatures over time dependent on'
+                 '\ninitial temperature and meridional heat diffusion coefficient', y=0.99)
     cols = ['r', 'm', 'g', 'c', 'b']
 
     for i, D in enumerate(np.linspace(0.35, 1.35, 5)):
@@ -40,20 +41,34 @@ def plot_graph():
             axs[0].plot(steps, TL - 273, '--', c='C' + str(i))
             axs[0].plot(steps, TH - 273, '-.', c='C' + str(i))
 
+
             axs[1].plot(steps, EL, '--', c='C' + str(i))
             axs[1].plot(steps, EH, '-.', c='C' + str(i))
 
-            axs[2].plot(steps[:-1], f[:-1], c='C' + str(i))
+            if tl == 305:
+                axs[2].plot(steps[:-1], f[:-1], c='C' + str(i), label=D)
+            else:
+                axs[2].plot(steps[:-1], f[:-1], c='C' + str(i))
 
-    axs[1].plot([0, max_t], [IL, IL], 'k--')
-    axs[1].plot([0, max_t], [IH, IH], 'k-.')
+    for ax in axs:
+        ax.set_xlim(0, max_t)
+
+    axs[1].plot([0, max_t], [IL, IL], 'k--', label='Incoming Radiation (Low Latitude)')
+    axs[1].plot([0, max_t], [IH, IH], 'k-.', label='Incoming Radiation (High Latitude)')
+
+    axs[1].legend()
+    axs[0].text(10, 15.5, 'Top sets = low latitudes, bottom sets = high latitudes, '
+                          'Shaded areas represent range of normal temperatures', c='grey')
     axs[0].set_ylabel('Temperature ( ̊C)')
     axs[1].set_ylabel('Heat Flux (Wm$^{-2}$)')
     axs[2].set_ylabel('Latitudinal Heat Flow (Wm$^{-2}$)')
     axs[2].set_xlabel('Time (Days)')
     axs[0].fill_between(steps, 27, 15, color='lightgray')
     axs[0].fill_between(steps, -5, 5, color='lightgray')
+    axs[2].legend(loc='upper center', bbox_to_anchor=(0.761, 1.035), title='Value of D', ncol=3, fancybox=True)
 
+    fig.tight_layout()
+    plt.savefig('Lab_Report_Q1_Output.png', dpi=300)
     plt.show()
 
 

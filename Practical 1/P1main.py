@@ -48,7 +48,8 @@ def plot2():
     EH = np.zeros(no_steps)
     TL[0] = 298
     TH[0] = 280
-    D = 1.35
+    D = 0.85
+
     A = 203.3
     B = 2.71
     Ca = 1.02e7
@@ -64,10 +65,9 @@ def plot2():
 
         EL[t+1] = A + B * (TL[t] - 273)
         EH[t+1] = A + B * (TH[t] - 273)
-        TL[t+1] = TL[t] + (IL - EL[t] - 2 * D * (TL[t] - TH[t])) * (86400/Ca)
-        TH[t+1] = TH[t] + (IH - EH[t] + 2 * D * (TL[t] - TH[t])) * (86400/Ca)
+        TL[t+1] = TL[t] + (IL - EL[t] - 2 * D * (TL[t] - TH[t])) * (stepsize*86400/Ca)
+        TH[t+1] = TH[t] + (IH - EH[t] + 2 * D * (TL[t] - TH[t])) * (stepsize*86400/Ca)
         f[t] = 2 * D * (TL[t] - TH[t])
-
 
     axs[0].plot(steps, TL - 273, 'b--', )
     axs[0].plot(steps, TH - 273, 'b-.')
@@ -88,3 +88,4 @@ def plot2():
 
 if __name__ == "__main__":
     plot1()
+    plot2()
