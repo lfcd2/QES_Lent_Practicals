@@ -2,6 +2,7 @@ import numpy as np
 import math
 from matplotlib import pyplot as plt
 
+
 def main():
     # Set various model parameters
     alpha = 2e-4 # thermal expansion coefficient
@@ -24,7 +25,7 @@ def main():
     duration = 1000 # duration of the simulation in years
     steps = 1000 # Number of timesteps
     stepsize = duration/steps # timestep size
-    times = np.linspace(0,duration,steps)
+    times = np.linspace(0, duration, steps)
 
     # Create empty arrays for the low and high latitude T+S and volume flux
     TL = np.empty_like(times) # Initialize an array for the low latitude temperature
@@ -41,8 +42,34 @@ def main():
     TatL = 20. + 273. # low latitude atmospheric temperature
     TatH = 0. + 273. # high latitude atmospheric temperature
 
-    for t in range(0,steps-1):
-        #<Enter equations for calculating delT, delS, Q, and, if Q is greater than zero, TL, TH, SL and SH for each time step based on the values of the previous timestep>
+    TL[0] = 292.87
+    TH[0] = 273.73
+    SH[0] = 36.2706
+    SL[0] = 36.4228
+
+
+
+    for t in range(0, steps-1):
+        dT = TL[t] - TH[t]
+        dS = SL[t] - SH[t]
+
+        q = k*(alpha*dT - beta*dS)
+        if t == 0:
+            Q[t] = q
+        Q[t+1] = q
+
+        #  Part 2
+        if 100 <= t <= 200:
+            SH[t+1] = SH[t] - 0.002 + stepsize*(q*dS - E) / VH
+        else:
+            SH[t + 1] = SH[t] + stepsize * (q * dS - E) / VH
+
+        TL[t+1] = TL[t] + stepsize*(-q*dT - (VL/tau)*(TL[t]-TatL)) / VL
+        TH[t+1] = TH[t] + stepsize*(q*dT - (VH/tau)*(TH[t]-TatH)) / VH
+        SL[t+1] = SL[t] + stepsize*(-q*dS + E) / VL
+
+
+        # <Enter equations for calculating delT, delS, Q, and, if Q is greater than zero, TL, TH, SL and SH for each time step based on the values of the previous timestep>
 
     # calculate the circulation at the final time:
     # <Enter equations for calculating delT, delS, for the final timestep>
@@ -56,7 +83,7 @@ def main():
     axs[1].plot(times,SH,'-.',label=r'$S_H$')
 
     axs[2].plot(times,Q)
-
+    print(Q[-1], TL[-1], TH[-1], SH[-1], SL[-1])
     # Decorate figure
     axs[0].legend()
     axs[1].legend()
@@ -64,7 +91,9 @@ def main():
     axs[1].set_ylabel('Salinity')
     axs[2].set_ylabel('Latitudinal flow strength ($m^{3}yr^{-1}$)')
     axs[2].set_xlabel('Time (years)')
+    # axs[0].set_ylim(0, 1)
     plt.show()
+
 
 if __name__ == "__main__":
     main()

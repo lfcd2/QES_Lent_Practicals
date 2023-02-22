@@ -8,7 +8,7 @@ def plot1():
     IL = 300
     IH = 170
     B = 2.71
-    DT = (IL - IH)/(4*D + B)
+    DT = (IL - IH)/(B +4*D)
     Tav = 282.5
     TL = Tav + DT/2
     TH = Tav - DT/2
