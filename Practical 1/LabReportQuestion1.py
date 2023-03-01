@@ -41,7 +41,6 @@ def plot_graph():
             axs[0].plot(steps, TL - 273, '--', c='C' + str(i))
             axs[0].plot(steps, TH - 273, '-.', c='C' + str(i))
 
-
             axs[1].plot(steps, EL, '--', c='C' + str(i))
             axs[1].plot(steps, EH, '-.', c='C' + str(i))
 
