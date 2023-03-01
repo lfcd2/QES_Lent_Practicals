@@ -3,6 +3,7 @@ import sys
 import cbsyst
 import numpy as np
 import matplotlib.pyplot as plt
+from tools import plot
 
 # global variables
 V_ocean = 1.34e18  # volume of the ocean in m3
@@ -41,7 +42,7 @@ init_lolat = {
     'tau_M': 250.,  # timescale of surface-deep mixing, yr
     'T_atmos': 25.,  # air temperature, Celcius
     'tau_T': 2.,  # timescale of temperature exchange with atmosphere, yr
-    'E': -E  # salt added due to evaporation - precipitation, kg m-3 yr-1
+    'E': E  # salt added due to evaporation - precipitation, kg m-3 yr-1
 }
 init_lolat['V'] = init_lolat['SA'] *  init_lolat['depth']  # box volume, m3
 
@@ -49,7 +50,8 @@ init_deep = {
     'name': 'deep',
     'SA': SA_ocean,  # box surface area, m2
     'T': 5.,  # initial water temperature, Celcius
-    'S': 34.5  # initial salinity
+    'S': 34.5,  # initial salinity
+    'V': V_ocean - init_lolat['V'] - init_hilat['V']
 }
 init_hilat['V'] = init_hilat['SA'] *  init_hilat['depth']  # box volume, m3
 
@@ -96,41 +98,39 @@ def ocean_model(lolat, hilat, deep, tmax, dt):
         # 1. calculate the thermohaline circulation flux, Q_T
 
         Q_T = Q_k*(Q_alpha*(lolat['T'][last] - hilat['T'][last]) - Q_beta*(lolat['S'][last] - hilat['S'][last]))
-        fluxes['Q_T'] = Q_T
-        print(Q_T)
+
 
         # 2. calculate all the fluxes
         # Note: be careful with the timestep parameter, dt - how do you include this in the fluxes?
+        for var in model_vars:
+            fluxes[f'Q_{var}_deep'] = Q_T * (hilat[var][last] - deep[var][last]) * dt  # mol dt-1
+            fluxes[f'Q_{var}_hilat'] = Q_T * (lolat[var][last] - hilat[var][last]) * dt  # mol dt-1
+            fluxes[f'Q_{var}_lolat'] = Q_T * (deep[var][last] - lolat[var][last]) * dt  # mol dt-1
+
+            fluxes[f'vmix_{var}_hilat'] = hilat['V'] / hilat['tau_M'] * (hilat[var][last] - deep[var][last]) * dt  # mol dt-1
+            fluxes[f'vmix_{var}_lolat'] = lolat['V'] / lolat['tau_M'] * (lolat[var][last] - deep[var][last]) * dt  # mol dt-1
 
         # 2.i calculate the mixing fluxes for each model variable
-        # for var in model_vars:
-        #   calculate each of the components of the mixing flux for each variable in turn, storing the output in the fluxes dictionary
-        #   for example, for the thermohaline circulation flux, you could write:
-        #   fluxes[f'Q_{var}_deep'] = Q_T * (hilat[var][last] - deep[var][last]) * dt  # mol dt-1
+        for box in [hilat, lolat]:
+            boxname = box['name']
+            fluxes[f'dT_{boxname}'] = box['V'] / box['tau_T'] * (box['T_atmos'] - box['T'][last]) * dt  # mol dt-1
 
         #   [[[do it here...]]]
 
         # 2.ii calculate temperature exchange with each surface box
-        # for box in [lolat, hilat]:
-        #   calculate the temperature exchange flux for each surface box, storing the output in the fluxes dictionary
-
-        #   [[[do it here...]]]
+        for var in model_vars:
+            deep[var][i] = deep[var][last] + (
+                    fluxes[f'Q_{var}_deep'] + fluxes[f'vmix_{var}_hilat'] + fluxes[f'vmix_{var}_lolat']) / deep['V']
 
         # 3. use the calculated fluxes to update the state of the model variables in each box
-
-        # 3.i apply fluxes to calculate new values in deep box
-        # for var in model_vars:
-        #   apply the calculated fluxes to update the state of each model variable in the deep box
-
-        #   [[[do it here...]]]
-
-        # 3.ii apply fluxes to calculate new values in surface boxes
-        # for box in [lolat, hilat]:
-        #   apply the calculated fluxes to update the state of each model variable in each surface box
-        #   (N.B. you can't loop through the model variables here, as the fluxes are different for each box)
-
-        #   [[[do it here...]]]
+        for box in [hilat, lolat]:
+            boxname = box['name']
+            box['S'][i] = box['S'][last] + (fluxes[f'Q_S_{boxname}'] - fluxes[f'vmix_S_{boxname}'] + box['E'] * dt) / box['V']
+            box['T'][i] = box['T'][last] + (fluxes[f'Q_T_{boxname}'] - fluxes[f'vmix_T_{boxname}'] + fluxes[f'dT_{boxname}']) / box['V']
 
     return time, lolat, hilat, deep
 
-ocean_model(init_lolat, init_hilat, init_deep, 1000, 0.5)
+time, lolat, hilat, deep = ocean_model(init_lolat, init_hilat, init_deep, 1000, 0.5)
+
+fig, axs = plot.boxes(time, ['T', 'S'], lolat, hilat, deep)
+plt.show()
