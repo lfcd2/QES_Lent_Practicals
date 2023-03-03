@@ -191,6 +191,7 @@ def ocean_model(dicts, tmax, dt):
             fluxes[f'Q_{var}_deep'] = Q * (hilat[var][last] - deep[var][last]) * dt
             fluxes[f'Q_{var}_hilat'] = Q * (lolat[var][last] - hilat[var][last]) * dt
             fluxes[f'Q_{var}_lolat'] = Q * (deep[var][last] - lolat[var][last]) * dt
+
             fluxes[f'vmix_{var}_hilat'] = hilat['V'] / hilat['tau_M'] * (hilat[var][last] - deep[var][last]) * dt
             fluxes[f'vmix_{var}_lolat'] = lolat['V'] / lolat['tau_M'] * (lolat[var][last] - deep[var][last]) * dt
 
@@ -211,19 +212,27 @@ def ocean_model(dicts, tmax, dt):
 
         # update deep box
         for var in model_vars:
-            deep[var][i] = (deep[var][last] + (fluxes[f'Q_{var}_deep'] + fluxes[f'vmix_{var}_hilat'] +
-                                               fluxes[f'vmix_{var}_lolat']) / deep['V'])
+            deep[var][i] = deep[var][last] + (fluxes[f'Q_{var}_deep']
+                                              + fluxes[f'vmix_{var}_hilat']
+                                              + fluxes[f'vmix_{var}_lolat']) / deep['V']
 
-        # update surface boxes
+        # update surface boxes for each variable
         for box in [hilat, lolat]:
             box_name = box['name']
-            box['S'][i] = box['S'][last] + (fluxes[f'Q_S_{box_name}'] - fluxes[f'vmix_S_{box_name}'] +
-                                            box['E'] * dt) / box['V']  # salinity dt-1
-            box['T'][i] = box['T'][last] + (fluxes[f'Q_T_{box_name}'] - fluxes[f'vmix_T_{box_name}'] +
-                                            fluxes[f'dT_{box_name}']) / box['V']  # degrees dt-1
-            box['DIC'][i] = box['DIC'][last] + (fluxes[f'Q_DIC_{box_name}'] - fluxes[f'vmix_DIC_{box_name}'] -
-                                                fluxes[f'dDIC_{box_name}']) / box['V']
-            box['TA'][i] = box['TA'][last] + (fluxes[f'Q_TA_{box_name}'] - fluxes[f'vmix_TA_{box_name}']) / box['V']
+            box['S'][i] = box['S'][last] + (fluxes[f'Q_S_{box_name}']
+                                            - fluxes[f'vmix_S_{box_name}']
+                                            + box['E'] * dt) / box['V']  # salinity dt-1
+
+            box['T'][i] = box['T'][last] + (fluxes[f'Q_T_{box_name}']
+                                            - fluxes[f'vmix_T_{box_name}']
+                                            + fluxes[f'dT_{box_name}']) / box['V']  # degrees dt-1
+
+            box['DIC'][i] = box['DIC'][last] + (fluxes[f'Q_DIC_{box_name}']
+                                                - fluxes[f'vmix_DIC_{box_name}']
+                                                - fluxes[f'dDIC_{box_name}']) / box['V'] # mol m-3 dt-1
+
+            box['TA'][i] = box['TA'][last] + (fluxes[f'Q_TA_{box_name}']
+                                              - fluxes[f'vmix_TA_{box_name}']) / box['V'] # mol m-3 dt-1
 
         # ===================== RECALCULATE THE DIC ETC FOR EACH BOX ===================== #
 
@@ -241,8 +250,10 @@ def ocean_model(dicts, tmax, dt):
         # ===================== UPDATE ATMOSPHERE BOX ===================== #
 
         # NOTE: be careful with units, and calculate both moles of CO2 in the atmosphere and the pCO2.
-        atmos['moles_CO2'][i] = \
-            atmos['moles_CO2'][last] + fluxes[f'dDIC_hilat'] + fluxes[f'dDIC_lolat'] + fluxes['emissions'][last]
+        atmos['moles_CO2'][i] = (atmos['moles_CO2'][last]
+                                 + fluxes[f'dDIC_hilat']
+                                 + fluxes[f'dDIC_lolat']
+                                 + fluxes['emissions'][last])
 
         atmos['pCO2'][i] = 1e6 * atmos['moles_CO2'][i] / atmos['moles_air']
 
