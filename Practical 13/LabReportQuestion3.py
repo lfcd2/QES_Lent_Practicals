@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from tools import plot
+from OceanTools.tools import plot
 
 # global variables
 V_ocean = 1.34e18  # volume of the ocean in m3
@@ -15,7 +15,7 @@ Q_k = 8.3e17
 # salinity balance - the total amount of salt added or removed to the surface boxes
 Fw = 0.1  # low latitude evaporation - precipitation in units of m yr-1
 Sref = 35  # reference salinity in units of g kg-1
-E = Fw * SA_ocean * (1 - fSA_hilat) * Sref  # amount of salt removed from the low latitude box,  g kg-1 yr-1, ~ kg m-3 yr-1
+E = Fw * SA_ocean * (1 - fSA_hilat) * Sref  # amount of salt removed from the low lat box,  g kg-1 yr-1, ~ kg m-3 yr-1
 
 init_hilat = {
     'name': 'hilat',
@@ -88,32 +88,31 @@ def ocean_model(lolat, hilat, deep, tmax, dt):
     print(lolat)
     fluxes = {}  # Create a dictionary to keep track of the fluxes calculated at each step
 
-    ### LOOP STARTS HERE ###
+    # ================== LOOP STARTS HERE ================== #
     for i in range(1, time.size):
+
         last = i - 1  # get the index of the previous time step
 
-        # 1. calculate the thermohaline circulation flux, Q_T
-
+        # calculate the thermohaline circulation flux, Q_T
         Q_T = Q_k*(Q_alpha*(lolat['T'][last] - hilat['T'][last]) - Q_beta*(lolat['S'][last] - hilat['S'][last]))
 
-        # 2. calculate all the fluxes
-        # Note: be careful with the timestep parameter, dt - how do you include this in the fluxes?
+        # calculate all the fluxes - all in units of mol dt-1
         for var in model_vars:
-            fluxes[f'Q_{var}_deep'] = Q_T * (hilat[var][last] - deep[var][last]) * dt  # mol dt-1
-            fluxes[f'Q_{var}_hilat'] = Q_T * (lolat[var][last] - hilat[var][last]) * dt  # mol dt-1
-            fluxes[f'Q_{var}_lolat'] = Q_T * (deep[var][last] - lolat[var][last]) * dt  # mol dt-1
+            fluxes[f'Q_{var}_deep'] = Q_T * (hilat[var][last] - deep[var][last]) * dt
+            fluxes[f'Q_{var}_hilat'] = Q_T * (lolat[var][last] - hilat[var][last]) * dt
+            fluxes[f'Q_{var}_lolat'] = Q_T * (deep[var][last] - lolat[var][last]) * dt
 
-            fluxes[f'vmix_{var}_hilat'] = hilat['V'] / hilat['tau_M'] * (hilat[var][last] - deep[var][last]) * dt  # mol dt-1
-            fluxes[f'vmix_{var}_lolat'] = lolat['V'] / lolat['tau_M'] * (lolat[var][last] - deep[var][last]) * dt  # mol dt-1
+            fluxes[f'vmix_{var}_hilat'] = hilat['V'] / hilat['tau_M'] * (hilat[var][last] - deep[var][last]) * dt
+            fluxes[f'vmix_{var}_lolat'] = lolat['V'] / lolat['tau_M'] * (lolat[var][last] - deep[var][last]) * dt
 
-        # 2.i calculate the mixing fluxes for each model variable
+        # temperature flux
         for box in [hilat, lolat]:
             boxname = box['name']
             fluxes[f'dT_{boxname}'] = box['V'] / box['tau_T'] * (box['T_atmos'] - box['T'][last]) * dt  # mol dt-1
 
         #   [[[do it here...]]]
 
-        # 2.ii calculate temperature exchange with each surface box
+        # update deep box
         for var in model_vars:
             deep[var][i] = deep[var][last] + (
                     fluxes[f'Q_{var}_deep'] + fluxes[f'vmix_{var}_hilat'] + fluxes[f'vmix_{var}_lolat']) / deep['V']

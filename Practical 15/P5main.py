@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 from cbsyst import Csys
 from tqdm import tqdm # This isn't strictly speaking necessary, but it makes it easier to track runtime progress
 from OceanTools.tools import plot
-from OceanTools.tools.lfcd2Tools import copy_dicts
 
 # global variables
 V_ocean = 1.34e18  # volume of the ocean in m3
@@ -24,8 +23,83 @@ Q_k = 8.3e17
 # salinity balance - the total amount of salt added or removed to the surface boxes
 Fw = 0.1  # low latitude evaporation - precipitation in units of m yr-1
 Sref = 35  # reference salinity in units of g kg-1
-
 E = Fw * SA_ocean * (1 - fSA_hilat) * Sref  # amount of salt removed from the low lat box, g kg-1 yr-1, ~ kg m-3 yr-1
+
+
+def initialise_dicts():
+    """Calculates the initial values for each box, and saves them in a dictionary
+
+    Returns
+    -------
+    init_lolat : dict
+        initial values for lolat
+    init_hilat : dict
+        initial values for hilat
+    init_deep : dict
+        initial values for deep
+    init_atmos : dict
+        initial values for atmos
+    """
+
+    # set up boxes with all the required variables
+    # High Latitude Box
+    init_hilat = {
+        'name': 'hilat',
+        'depth': 200,  # box depth, m
+        'SA': SA_ocean * fSA_hilat,  # box surface area, m2
+        'T': 3.897678,  # initial water temperature, Celcius
+        'S': 34.37786,  # initial salinity
+        'T_atmos': 0.,  # air temperature, Celcius
+        'tau_M': 100.,  # timescale of surface-deep mixing, yr
+        'tau_T': 2.,  # timescale of temperature exchange with atmosphere, yr
+        'E': -E,  # salt added due to evaporation - precipitation, kg m-3 yr-1
+        # Add new variables here
+        'DIC': (38700e15 / 12) / V_ocean,
+        'TA': 3.1e18 / V_ocean,
+        'tau_CO2': 2.
+    }
+    init_hilat['V'] = init_hilat['SA'] * init_hilat['depth']  # box volume, m3
+
+    # Low Latitude Box
+    init_lolat = {
+        'name': 'lolat',
+        'depth': 100,  # box depth, m
+        'SA': SA_ocean * (1 - fSA_hilat),  # box surface area, m2
+        'T': 23.60040,  # initial water temperature, Celcius
+        'S': 35.37898,  # initial salinity
+        'T_atmos': 25.,  # air temperature, Celcius
+        'tau_M': 250.,  # timescale of surface-deep mixing, yr
+        'tau_T': 2.,  # timescale of temperature exchange with atmosphere, yr
+        'E': E,  # salinity balance, PSU m3 yr-1
+        'DIC': (38700e15 / 12) / V_ocean,
+        'TA': 3.1e18 / V_ocean,
+        'tau_CO2': 2.
+    }
+    init_lolat['V'] = init_lolat['SA'] * init_lolat['depth']  # box volume, m3
+
+    # Deep Ocean Box
+    init_deep = {
+        'name': 'deep',
+        'V': V_ocean - init_lolat['V'] - init_hilat['V'],  # box volume, m3
+        'T': 5.483637,  # initial water temperature, Celcius
+        'S': 34.47283,  # initial salinity
+        # Add new variables here
+        'DIC': (38700e15 / 12) / V_ocean,
+        'TA': 3.1e18 / V_ocean,
+    }
+
+    # Atmosphere box
+    init_atmos = {
+        'name': 'atmos',
+        'mass': 5e21,  # in grams
+        'moles_air': 1.736e20,
+        'moles_CO2': 850e15 / 12,
+        'GtC_emissions': 0
+    }
+    init_atmos['pCO2'] = 1e6 * init_atmos['moles_CO2'] / init_atmos['moles_air']
+
+    # returns the dictionaries
+    return init_lolat, init_hilat, init_deep, init_atmos
 
 
 def ocean_model(dicts, tmax, dt):
@@ -191,82 +265,6 @@ def ocean_model(dicts, tmax, dt):
     return time, (lolat, hilat, deep, atmos)
 
 
-def initialise_dicts():
-    """Calculates the initial values for each box, and saves them in a dictionary
-
-    Returns
-    -------
-    init_lolat : dict
-        initial values for lolat
-    init_hilat : dict
-        initial values for hilat
-    init_deep : dict
-        initial values for deep
-    init_atmos : dict
-        initial values for atmos
-    """
-
-    # set up boxes with all the required variables
-    # High Latitude Box
-    init_hilat = {
-        'name': 'hilat',
-        'depth': 200,  # box depth, m
-        'SA': SA_ocean * fSA_hilat,  # box surface area, m2
-        'T': 3.897678,  # initial water temperature, Celcius
-        'S': 34.37786,  # initial salinity
-        'T_atmos': 0.,  # air temperature, Celcius
-        'tau_M': 100.,  # timescale of surface-deep mixing, yr
-        'tau_T': 2.,  # timescale of temperature exchange with atmosphere, yr
-        'E': -E,  # salt added due to evaporation - precipitation, kg m-3 yr-1
-        # Add new variables here
-        'DIC': (38700e15 / 12) / V_ocean,
-        'TA': 3.1e18 / V_ocean,
-        'tau_CO2': 2.
-    }
-    init_hilat['V'] = init_hilat['SA'] * init_hilat['depth']  # box volume, m3
-
-    # Low Latitude Box
-    init_lolat = {
-        'name': 'lolat',
-        'depth': 100,  # box depth, m
-        'SA': SA_ocean * (1 - fSA_hilat),  # box surface area, m2
-        'T': 23.60040,  # initial water temperature, Celcius
-        'S': 35.37898,  # initial salinity
-        'T_atmos': 25.,  # air temperature, Celcius
-        'tau_M': 250.,  # timescale of surface-deep mixing, yr
-        'tau_T': 2.,  # timescale of temperature exchange with atmosphere, yr
-        'E': E,  # salinity balance, PSU m3 yr-1
-        'DIC': (38700e15 / 12) / V_ocean,
-        'TA': 3.1e18 / V_ocean,
-        'tau_CO2': 2.
-    }
-    init_lolat['V'] = init_lolat['SA'] * init_lolat['depth']  # box volume, m3
-
-    # Deep Ocean Box
-    init_deep = {
-        'name': 'deep',
-        'V': V_ocean - init_lolat['V'] - init_hilat['V'],  # box volume, m3
-        'T': 5.483637,  # initial water temperature, Celcius
-        'S': 34.47283,  # initial salinity
-        # Add new variables here
-        'DIC': (38700e15 / 12) / V_ocean,
-        'TA': 3.1e18 / V_ocean,
-    }
-
-    # Atmosphere box
-    init_atmos = {
-        'name': 'atmos',
-        'mass': 5e21,  # in grams
-        'moles_air': 1.736e20,
-        'moles_CO2': 850e15 / 12,
-        'GtC_emissions': 0
-    }
-    init_atmos['pCO2'] = 1e6 * init_atmos['moles_CO2'] / init_atmos['moles_air']
-
-    # returns the dictionaries
-    return init_lolat, init_hilat, init_deep, init_atmos
-
-
 def run():
     """
     this runs the code
@@ -282,7 +280,7 @@ def run():
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
 
     # this uses oscars plot function to plot DIC, TA and pCO2 (you can experiment by adding variables into this list)
-    fig, axs = plot.boxes(time_array, ['DIC', 'TA', 'pCO2'],
+    fig, axs = plot.boxes(time_array, ['T', 'S', 'DIC', 'TA', 'pCO2'],
                           final_lolat, final_hilat, final_deep, final_atmos)
 
     # adjust axes of the pCO2 plot
