@@ -1,9 +1,6 @@
-import os
-import sys
-import cbsyst
 import numpy as np
 import matplotlib.pyplot as plt
-from tools import plot
+from OceanTools.tools import plot
 
 # global variables
 V_ocean = 1.34e18  # volume of the ocean in m3
