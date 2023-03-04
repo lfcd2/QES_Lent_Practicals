@@ -6,6 +6,7 @@ https://github.com/lfcd2/QES_Lent_Practicals
 
 import numpy as np
 from matplotlib import pyplot as plt
+from tqdm import tqdm
 
 
 def main():
@@ -28,7 +29,7 @@ def main():
 
     # Timestepping  parameters
     duration = 1000  # duration of the simulation in years
-    steps = 1000  # Number of timesteps
+    steps = 10000  # Number of timesteps
     stepsize = duration/steps  # timestep size
     times = np.linspace(0, duration, steps)
 
@@ -53,8 +54,8 @@ def main():
     # SH[0] = 36.2706
     # SL[0] = 36.4228
 
-    # repeats for the number of steps
-    for t in range(0, steps-1):
+    # repeats for the number of steps (the tqdm just gives a nice loading bar)
+    for t in tqdm(range(0, steps-1)):
 
         # calculates the deltas and q
         dT = TL[t] - TH[t]
@@ -92,7 +93,6 @@ def main():
 
     # plots q
     axs[2].plot(times, Q)
-    print(Q[-1], TL[-1], TH[-1], SH[-1], SL[-1])
 
     # Decorate figure
     axs[0].legend()
