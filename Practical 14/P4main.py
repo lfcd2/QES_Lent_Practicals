@@ -190,7 +190,7 @@ def ocean_model_p4(dicts, tmax, dt):
     return time, (lolat, hilat, deep, atmos)
 
 
-def initialise_dicts():
+def initialise_dicts_14():
     """Calculates the initial values for each box, and saves them in a dictionary
 
     Returns
@@ -272,7 +272,7 @@ def run():
     """
 
     # this line of code runs initialise_dicts which sets up the initial dictionaries
-    dicts = initialise_dicts()
+    dicts = initialise_dicts_14()
 
     # this line of code runs the model
     time_array, finished_dicts = ocean_model_p4(dicts, 3000, 0.5)
