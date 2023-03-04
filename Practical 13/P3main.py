@@ -15,7 +15,7 @@ Q_k = 8.3e17
 # salinity balance - the total amount of salt added or removed to the surface boxes
 Fw = 0.1  # low latitude evaporation - precipitation in units of m yr-1
 Sref = 35  # reference salinity in units of g kg-1
-E = Fw * SA_ocean * (1 - fSA_hilat) * Sref  # amount of salt removed from the low latitude box,  g kg-1 yr-1, ~ kg m-3 yr-1
+E = Fw * SA_ocean * (1 - fSA_hilat) * Sref  # amount of salt removed from the low lat box,  g kg-1 yr-1, ~ kg m-3 yr-1
 
 init_hilat = {
     'name': 'hilat',
@@ -53,7 +53,7 @@ init_deep = {
 init_hilat['V'] = init_hilat['SA'] *  init_hilat['depth']  # box volume, m3
 
 
-def ocean_model(lolat, hilat, deep, tmax, dt):
+def ocean_model_p3(lolat, hilat, deep, tmax, dt):
     """Run the ocean model for a given time period and return the results for each box.
 
     Parameters
@@ -127,7 +127,7 @@ def ocean_model(lolat, hilat, deep, tmax, dt):
 
     return time, lolat, hilat, deep
 
-time, lolat, hilat, deep = ocean_model(init_lolat, init_hilat, init_deep, 1000, 0.5)
+time, lolat, hilat, deep = ocean_model_p3(init_lolat, init_hilat, init_deep, 1000, 0.5)
 
 fig, axs = plot.boxes(time, ['T', 'S'], lolat, hilat, deep)
 plt.show()

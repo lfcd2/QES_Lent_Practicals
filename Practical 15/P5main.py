@@ -102,7 +102,7 @@ def initialise_dicts():
     return init_lolat, init_hilat, init_deep, init_atmos
 
 
-def ocean_model(dicts, tmax, dt):
+def ocean_model_p5(dicts, tmax, dt):
     """Run the ocean model for a given time period and return the results for each box.
 
     Parameters
@@ -274,7 +274,7 @@ def run():
     dicts = initialise_dicts()
 
     # this line of code runs the model
-    time_array, finished_dicts = ocean_model(dicts, 3000, 0.5)
+    time_array, finished_dicts = ocean_model_p5(dicts, 3000, 0.5)
 
     # this unpacks the result that is output from the model
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
