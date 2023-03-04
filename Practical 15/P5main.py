@@ -7,7 +7,7 @@ https://github.com/lfcd2/QES_Lent_Practicals
 import numpy as np
 import matplotlib.pyplot as plt
 from cbsyst import Csys
-from tqdm import tqdm # This isn't strictly speaking necessary, but it makes it easier to track runtime progress
+from tqdm import tqdm  # This isn't strictly speaking necessary, but it makes it easier to track runtime progress
 from OceanTools.tools import plot
 
 # global variables
@@ -41,8 +41,6 @@ def initialise_dicts_15():
         initial values for atmos
     """
 
-    # set up boxes with all the required variables
-    # High Latitude Box
     init_hilat = {
         'name': 'hilat',
         'depth': 200,  # box depth, m
@@ -53,14 +51,15 @@ def initialise_dicts_15():
         'tau_M': 100.,  # timescale of surface-deep mixing, yr
         'tau_T': 2.,  # timescale of temperature exchange with atmosphere, yr
         'E': -E,  # salt added due to evaporation - precipitation, kg m-3 yr-1
-        # Add new variables here
-        'DIC': (38700e15 / 12) / V_ocean,
-        'TA': 3.1e18 / V_ocean,
-        'tau_CO2': 2.
+        'tau_CO2': 2.,  # timescale of CO2 exchange, yr
+        'DIC': 2.32226,  # Dissolved Inorganic Carbon concentration, mol m-3
+        'TA': 3.1e18/V_ocean,  # Total Alkalinity, mol m-3
+        'tau_PO4': 3.,
+        'f_CaCO3': 0.2,
+        'PO4': 3e15/V_ocean
     }
     init_hilat['V'] = init_hilat['SA'] * init_hilat['depth']  # box volume, m3
 
-    # Low Latitude Box
     init_lolat = {
         'name': 'lolat',
         'depth': 100,  # box depth, m
@@ -71,32 +70,33 @@ def initialise_dicts_15():
         'tau_M': 250.,  # timescale of surface-deep mixing, yr
         'tau_T': 2.,  # timescale of temperature exchange with atmosphere, yr
         'E': E,  # salinity balance, PSU m3 yr-1
-        'DIC': (38700e15 / 12) / V_ocean,
-        'TA': 3.1e18 / V_ocean,
-        'tau_CO2': 2.
+        'tau_CO2': 2.,  # timescale of CO2 exchange, yr
+        'DIC': 2.26201,  # Dissolved Inorganic Carbon concentration, mol m-3
+        'TA': 3.1e18/V_ocean,  # Total Alkalinity, mol m-3
+        'tau_PO4': 2.,
+        'f_CaCO3': 0.3,
+        'PO4': 3e15 / V_ocean
     }
     init_lolat['V'] = init_lolat['SA'] * init_lolat['depth']  # box volume, m3
 
-    # Deep Ocean Box
     init_deep = {
         'name': 'deep',
         'V': V_ocean - init_lolat['V'] - init_hilat['V'],  # box volume, m3
         'T': 5.483637,  # initial water temperature, Celcius
         'S': 34.47283,  # initial salinity
-        # Add new variables here
-        'DIC': (38700e15 / 12) / V_ocean,
-        'TA': 3.1e18 / V_ocean,
+        'DIC': 2.32207,  # Dissolved Inorganic Carbon concentration, mol m-3
+        'TA': 3.1e18/V_ocean,  # Total Alkalinity, mol m-3
+        'PO4': 3e15/V_ocean
     }
 
-    # Atmosphere box
     init_atmos = {
         'name': 'atmos',
-        'mass': 5e21,  # in grams
-        'moles_air': 1.736e20,
-        'moles_CO2': 850e15 / 12,
-        'GtC_emissions': 0
+        'mass': 5.132e18,  # kg
+        'moles_air': 1.736e20,  # moles
+        'moles_CO2': 850e15 / 12,  # moles
+        'GtC_emissions': 0.0  # annual emissions of CO2 into the atmosphere, GtC
     }
-    init_atmos['pCO2'] = 1e6 * init_atmos['moles_CO2'] / init_atmos['moles_air']
+    init_atmos['pCO2'] = init_atmos['moles_CO2'] / init_atmos['moles_air'] * 1e6
 
     # returns the dictionaries
     return init_lolat, init_hilat, init_deep, init_atmos
@@ -127,7 +127,7 @@ def ocean_model_p5(dicts, tmax, dt):
     time = np.arange(0, tmax + dt, dt)
 
     # identify which variables will change with time - we will iterate over these lists
-    model_vars = ['T', 'S', 'DIC', 'TA']
+    model_vars = ['T', 'S', 'DIC', 'TA', 'PO4']
     atmos_model_vars = ['moles_CO2', 'pCO2']
 
     '''
@@ -204,8 +204,14 @@ def ocean_model_p5(dicts, tmax, dt):
             # DIC exchange with atmosphere (careful with units! Your CO2 change should be in units of mol m-3.)
             fluxes[f'dDIC_{box_name}'] = \
                 (box['V'] / box['tau_CO2']) * (box['CO2'][last] - box['K0'][last] * atmos['pCO2'][last] * 1e-3) * dt
+            # Productivity
+            fluxes[f'prod_PO4_{box_name}'] = box['V'] / box['tau_PO4'] * box['PO4'][last] * dt
+            # productivity on DIC (we add here because the bio pump is favourable for DIC, but unfavourablt for TA
+            fluxes[f'prod_DIC_{box_name}'] = fluxes[f'prod_PO4_{box_name}'] * (106 * box['f_CaCO3'] + 106)
+            # productivity on TA
+            fluxes[f'prod_TA_{box_name}'] = fluxes[f'prod_PO4_{box_name}'] * (106 * box['f_CaCO3'] * 2 - 18)
 
-        # calculate emissions flux
+            # calculate emissions flux
         fluxes['emissions'] = atmos['GtC_emissions'] * 1e15 / 12 * dt
 
         # ===================== UPDATE BOXES ===================== #
@@ -215,6 +221,9 @@ def ocean_model_p5(dicts, tmax, dt):
             deep[var][i] = deep[var][last] + (fluxes[f'Q_{var}_deep']
                                               + fluxes[f'vmix_{var}_hilat']
                                               + fluxes[f'vmix_{var}_lolat']) / deep['V']
+            if var in ['DIC', 'TA', 'PO4']:  # this takes into account  the bio pump for the relevant vars
+                for box_loc in ['hilat', 'lolat']:
+                    deep[var][i] += fluxes[f'prod_{var}_{box_loc}'] / deep['V']
 
         # update surface boxes for each variable
         for box in [hilat, lolat]:
@@ -229,10 +238,16 @@ def ocean_model_p5(dicts, tmax, dt):
 
             box['DIC'][i] = box['DIC'][last] + (fluxes[f'Q_DIC_{box_name}']
                                                 - fluxes[f'vmix_DIC_{box_name}']
-                                                - fluxes[f'dDIC_{box_name}']) / box['V'] # mol m-3 dt-1
+                                                - fluxes[f'dDIC_{box_name}']
+                                                - fluxes[f'prod_DIC_{box_name}']) / box['V']  # mol m-3 dt-1
 
             box['TA'][i] = box['TA'][last] + (fluxes[f'Q_TA_{box_name}']
-                                              - fluxes[f'vmix_TA_{box_name}']) / box['V'] # mol m-3 dt-1
+                                              - fluxes[f'vmix_TA_{box_name}']
+                                              - fluxes[f'prod_TA_{box_name}']) / box['V']  # mol m-3 dt-1
+
+            box['PO4'][i] = box['PO4'][last] + (fluxes[f'Q_PO4_{box_name}']
+                                                - fluxes[f'vmix_PO4_{box_name}']
+                                                - fluxes[f'prod_PO4_{box_name}']) / box['V']  # mol m-3 dt-1
 
         # ===================== RECALCULATE THE DIC ETC FOR EACH BOX ===================== #
 
@@ -274,17 +289,17 @@ def run():
     dicts = initialise_dicts_15()
 
     # this line of code runs the model
-    time_array, finished_dicts = ocean_model_p5(dicts, 3000, 0.5)
+    time_array, finished_dicts = ocean_model_p5(dicts, 1000, 0.5)
 
     # this unpacks the result that is output from the model
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
 
     # this uses oscars plot function to plot DIC, TA and pCO2 (you can experiment by adding variables into this list)
-    fig, axs = plot.boxes(time_array, ['DIC', 'TA', 'pCO2'],
+    fig, axs = plot.boxes(time_array, ['DIC', 'TA', 'pCO2', 'PO4'],
                           final_lolat, final_hilat, final_deep, final_atmos)
 
     # adjust axes of the pCO2 plot
-    axs[-1].set_ylim(0, 1600)
+    axs[-2].set_ylim(0, 1600)
 
     # plot the graph
     plt.show()
