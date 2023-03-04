@@ -22,7 +22,7 @@ def experiment_ocean_mixing_and_pco2():
     lolat, hilat, deep, atmos = finished_dicts
     fig, axs = plot.boxes(time_array, 'pCO2', atmos, axs=axs, ls='--')
 
-    # add legend (broken for some reason)
+    # add legend (oscar's function seems broken for some reason?)
     lines = axs[0].get_lines()
     lines[1].set_label('Atmos')
     lines[2].set_label('Atmos: 2x Mixing')
