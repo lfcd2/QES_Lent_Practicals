@@ -47,8 +47,8 @@ def initialise_dicts():
         'tau_T': 2.,  # timescale of temperature exchange with atmosphere, yr
         'E': -E,  # salt added due to evaporation - precipitation, kg m-3 yr-1
         # Add new variables here
-        'DIC': (38700e15 / 12) / V_ocean,
-        'TA': 3.1e18 / V_ocean,
+        'DIC': 2.300182,
+        'TA': 2.3134328,
         'tau_CO2': 2.
     }
     init_hilat['V'] = init_hilat['SA'] * init_hilat['depth']  # box volume, m3
@@ -64,8 +64,8 @@ def initialise_dicts():
         'tau_M': 250.,  # timescale of surface-deep mixing, yr
         'tau_T': 2.,  # timescale of temperature exchange with atmosphere, yr
         'E': E,  # salinity balance, PSU m3 yr-1
-        'DIC': (38700e15 / 12) / V_ocean,
-        'TA': 3.1e18 / V_ocean,
+        'DIC': 2.23882,
+        'TA': 2.313432,
         'tau_CO2': 2.
     }
     init_lolat['V'] = init_lolat['SA'] * init_lolat['depth']  # box volume, m3
@@ -77,8 +77,8 @@ def initialise_dicts():
         'T': 5.483637,  # initial water temperature, Celcius
         'S': 34.47283,  # initial salinity
         # Add new variables here
-        'DIC': (38700e15 / 12) / V_ocean,
-        'TA': 3.1e18 / V_ocean,
+        'DIC': 2.295687,
+        'TA': 2.313432,
     }
 
     # Atmosphere box
@@ -86,7 +86,7 @@ def initialise_dicts():
         'name': 'atmos',
         'mass': 5e21,  # in grams
         'moles_air': 1.736e20,
-        'moles_CO2': 850e15 / 12,
+        'moles_CO2': 2.212944e+17,
         'GtC_emissions': 0
     }
     init_atmos['pCO2'] = 1e6 * init_atmos['moles_CO2'] / init_atmos['moles_air']
@@ -99,7 +99,7 @@ def question_4():
 
     dicts = list(initialise_dicts())
 
-    # create a new time axis for the model containing 2000 years with a 0.5 year time step
+    # create a new time axis for the model containing 3000 years with a 0.5 year time step
     tmax = 3000  # how many years to simulate (yr)
     dt = 0.5  # the time step of the simulation (yr)
     time = np.arange(0, tmax + dt, dt)  # the time axis for the model
@@ -108,14 +108,15 @@ def question_4():
     # where 8 GtC are emitted each year.
     emit_atmos = dicts[-1].copy()  # create a copy of the original atmosphere input dictionary
     emit_atmos['GtC_emissions'] = np.zeros(time.shape)  # creat an array to hold the emission scenario
-    emit_atmos['GtC_emissions'][(time > 800) & (time <= 1000)] = 8.0  # set e to 8 GtC per year between 800-1000
+    emit_atmos['GtC_emissions'][(time > 500) & (time <= 700)] = 8.0  # set e to 8 GtC per year between 500-700
     dicts[-1] = emit_atmos
-    # run the model using this emission scenario, and create the required plot
 
+    # run the model using this emission scenario, and create the required plot
     time_array, finished_dicts = ocean_model(dicts, 3000, 0.5)
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
-    fig, axs = plot.boxes(time_array, ['DIC', 'TA', 'pCO2'], final_lolat, final_hilat, final_deep, final_atmos)
-    axs[-1].set_ylim(0, 2500)
+    fig, axs = plot.boxes(time_array, ['DIC', 'pCO2', 'GtC_emissions'],
+                          final_lolat, final_hilat, final_deep, final_atmos)
+
 
     plt.show()
 

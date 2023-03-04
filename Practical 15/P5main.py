@@ -280,7 +280,7 @@ def run():
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
 
     # this uses oscars plot function to plot DIC, TA and pCO2 (you can experiment by adding variables into this list)
-    fig, axs = plot.boxes(time_array, ['T', 'S', 'DIC', 'TA', 'pCO2'],
+    fig, axs = plot.boxes(time_array, ['DIC', 'TA', 'pCO2'],
                           final_lolat, final_hilat, final_deep, final_atmos)
 
     # adjust axes of the pCO2 plot

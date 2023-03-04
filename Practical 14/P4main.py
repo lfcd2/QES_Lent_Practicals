@@ -281,14 +281,20 @@ def run():
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
 
     # this uses oscars plot function to plot DIC, TA and pCO2 (you can experiment by adding variables into this list)
-    fig, axs = plot.boxes(time_array, ['DIC', 'TA', 'pCO2'],
-                          final_lolat, final_hilat, final_deep, final_atmos)
+    fig, axs = plot.boxes(time_array, ['DIC', 'TA', 'pCO2'], final_lolat, final_hilat, final_deep, final_atmos)
 
     # adjust axes of the pCO2 plot
     axs[-1].set_ylim(0, 1600)
 
     # plot the graph
     plt.show()
+    '''
+    This prints the final values of dic and ta for each box, as well as the carbon in the atmosphere
+    It is needed for lab question, but commented out for now.
+    '''
+    # for box in [final_hilat, final_lolat, final_deep]:
+    #     print(f'{box["name"]} : DIC = {box["DIC"][-1]}, TA = {box["TA"][-1]}')
+    # print(f"Atmospheric CO2 : {final_atmos['moles_CO2'][-1]}")
 
 
 if __name__ == '__main__':
