@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 from cbsyst import Csys
 from tqdm import tqdm # This isn't strictly speaking necessary, but it makes it easier to track runtime progress
 from OceanTools.tools import plot
-from OceanTools.tools.lfcd2Tools import copy_dicts
 
 # global variables
 V_ocean = 1.34e18  # volume of the ocean in m3
