@@ -297,5 +297,6 @@ def run():
     # print(f"Atmospheric CO2 : {final_atmos['moles_CO2'][-1]}")
 
 
+# runs the code y'know
 if __name__ == '__main__':
     run()
