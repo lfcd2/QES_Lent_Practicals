@@ -7,7 +7,7 @@ https://github.com/lfcd2/QES_Lent_Practicals
 import numpy as np
 import matplotlib.pyplot as plt
 from cbsyst import Csys
-from tqdm import tqdm # This isn't strictly speaking necessary, but it makes it easier to track runtime progress
+from tqdm import tqdm  # This isn't strictly speaking necessary, but it makes it easier to track runtime progress
 from OceanTools.tools import plot
 
 # global variables
@@ -32,8 +32,8 @@ def ocean_model(dicts, tmax, dt):
 
     Parameters
     ----------
-    dicts : list
-        list of dictionaries containing the box properties
+    dicts : dict or list
+        dictionaries containing the box properties
     tmax : int or float
         The maximum time to run the model for (yr)
     dt : float
@@ -154,10 +154,10 @@ def ocean_model(dicts, tmax, dt):
 
             box['DIC'][i] = box['DIC'][last] + (fluxes[f'Q_DIC_{box_name}']
                                                 - fluxes[f'vmix_DIC_{box_name}']
-                                                - fluxes[f'dDIC_{box_name}']) / box['V'] # mol m-3 dt-1
+                                                - fluxes[f'dDIC_{box_name}']) / box['V']  # mol m-3 dt-1
 
             box['TA'][i] = box['TA'][last] + (fluxes[f'Q_TA_{box_name}']
-                                              - fluxes[f'vmix_TA_{box_name}']) / box['V'] # mol m-3 dt-1
+                                              - fluxes[f'vmix_TA_{box_name}']) / box['V']  # mol m-3 dt-1
 
         # ===================== RECALCULATE THE DIC ETC FOR EACH BOX ===================== #
 
