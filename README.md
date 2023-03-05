@@ -11,4 +11,4 @@ QES Lent Practicals and Lab Report
 
 [Practical 15](Practical%2015) 
 
-[This](lfcd2OceanTools) folder provides modified versions of Oscars' plot functions, as well as other minor streamlining functions.
+[This](lfcd2OceanTools) folder provides modified versions of [Oscars' plot functions](https://github.com/Quantitative-Environmental-Science/OceanTools), as well as other minor streamlining functions.
