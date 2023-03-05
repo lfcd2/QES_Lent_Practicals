@@ -9,4 +9,4 @@ QES Lent Practicals and Lab Report
 
 [Practical 14](Practical%2014)
 
-[Practical 15 (Incomplete)](Practical%2015) 
+[Practical 15](Practical%2015) 
