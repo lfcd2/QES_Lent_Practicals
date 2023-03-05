@@ -1,5 +1,5 @@
 # QES_Lent_Practicals
-QES Lent Practicals and Lab Report
+####QES Lent Practicals and Lab Report
 
 [Practical 11](Practical%2011)
 
