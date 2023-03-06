@@ -53,7 +53,7 @@ init_deep = {
 init_hilat['V'] = init_hilat['SA'] *  init_hilat['depth']  # box volume, m3
 
 
-def ocean_model_p3(lolat, hilat, deep, tmax, dt):
+def ocean_model_p13(lolat, hilat, deep, tmax, dt):
     """Run the ocean model for a given time period and return the results for each box.
 
     Parameters
@@ -127,7 +127,7 @@ def ocean_model_p3(lolat, hilat, deep, tmax, dt):
 
     return time, lolat, hilat, deep
 
-time, lolat, hilat, deep = ocean_model_p3(init_lolat, init_hilat, init_deep, 1000, 0.5)
+time, lolat, hilat, deep = ocean_model_p13(init_lolat, init_hilat, init_deep, 1000, 0.5)
 
 fig, axs = plot.boxes(time, ['T', 'S'], lolat, hilat, deep)
 plt.show()

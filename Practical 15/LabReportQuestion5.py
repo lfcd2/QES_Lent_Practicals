@@ -4,7 +4,7 @@ Finished, almost completely PEP-8 compliant code for most of the lab report is a
 https://github.com/lfcd2/QES_Lent_Practicals
 """
 
-from P5main import initialise_dicts_15, ocean_model_p5
+from P5main import initialise_dicts_15, ocean_model_p15
 from lfcd2OceanTools.lfcd2Tools import copy_dicts, modified_boxes
 import numpy as np
 from OceanTools.tools import plot
@@ -40,7 +40,7 @@ def run():
         ls, name, dicts2 = a
 
         # for every set of intial conditions, this runs the model and unpacks the dicts
-        time_array, finished_dicts = ocean_model_p5(dicts2, tmax, dt)
+        time_array, finished_dicts = ocean_model_p15(dicts2, tmax, dt)
         final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
 
         # if this is the model, it will make a new fig, axs and plot the graph

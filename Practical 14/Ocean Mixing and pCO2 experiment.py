@@ -1,4 +1,4 @@
-from P4main import initialise_dicts_14, ocean_model_p4
+from P4main import initialise_dicts_14, ocean_model_p14
 from OceanTools.tools import plot
 from lfcd2OceanTools.lfcd2Tools import copy_dicts
 import matplotlib.pyplot as plt
@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 def experiment_ocean_mixing_and_pco2():
     # run the first model and plot it
     dicts = initialise_dicts_14()
-    time_array, finished_dicts = ocean_model_p4(dicts, 3000, 0.5)
+    time_array, finished_dicts = ocean_model_p14(dicts, 3000, 0.5)
     lolat, hilat, deep, atmos = finished_dicts
     fig, axs = plot.boxes(time_array, 'pCO2', atmos)
 
@@ -18,7 +18,7 @@ def experiment_ocean_mixing_and_pco2():
             d['tau_M'] /= 2
 
     # run the updated model and plot it
-    time_array, finished_dicts = ocean_model_p4(new_dicts, 3000, 0.5)
+    time_array, finished_dicts = ocean_model_p14(new_dicts, 3000, 0.5)
     lolat, hilat, deep, atmos = finished_dicts
     fig, axs = plot.boxes(time_array, 'pCO2', atmos, axs=axs, ls='--')
 

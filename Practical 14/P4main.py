@@ -27,7 +27,7 @@ Sref = 35  # reference salinity in units of g kg-1
 E = Fw * SA_ocean * (1 - fSA_hilat) * Sref  # amount of salt removed from the low lat box, g kg-1 yr-1, ~ kg m-3 yr-1
 
 
-def ocean_model_p4(dicts, tmax, dt):
+def ocean_model_p14(dicts, tmax, dt):
     """Run the ocean model for a given time period and return the results for each box.
 
     Parameters
@@ -275,7 +275,7 @@ def run():
     dicts = initialise_dicts_14()
 
     # this line of code runs the model
-    time_array, finished_dicts = ocean_model_p4(dicts, 3000, 0.5)
+    time_array, finished_dicts = ocean_model_p14(dicts, 3000, 0.5)
 
     # this unpacks the result that is output from the model
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
