@@ -1,4 +1,4 @@
-from P4main import ocean_model_p4
+from P4main import ocean_model_p14
 import numpy as np
 from OceanTools.tools import plot
 import matplotlib.pyplot as plt
@@ -112,7 +112,7 @@ def question_4():
     dicts[-1] = emit_atmos
 
     # run the model using this emission scenario, and create the required plot
-    time_array, finished_dicts = ocean_model_p4(dicts, tmax, dt)
+    time_array, finished_dicts = ocean_model_p14(dicts, tmax, dt)
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
     fig, axs = plot.boxes(time_array, ['DIC', 'pCO2', 'GtC_emissions'],
                           final_lolat, final_hilat, final_deep, final_atmos)
