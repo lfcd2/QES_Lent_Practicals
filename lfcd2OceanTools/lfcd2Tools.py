@@ -67,7 +67,7 @@ def modified_boxes(time, vars, *boxes, axs=None, label=None, height=0, **kwargs)
             plot_orig = True
     axs[-1].legend(fontsize=8)
 
-    if label is not None:
+    if (label is not None) and len(axs) > 1:
         current_labels = axs[-2].get_legend_handles_labels()[1]
         if plot_orig and 'original' not in current_labels:
             axs[-2].plot([], [], color=(.3, .3, .3), label='original')
