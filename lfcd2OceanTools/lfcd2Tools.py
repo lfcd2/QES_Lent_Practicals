@@ -79,3 +79,52 @@ def modified_boxes(time, vars, *boxes, axs=None, label=None, height=0, **kwargs)
 
     return fig, axs
 
+
+def modify_single_dict(d, modifiers):
+    if type(modifiers) == Modifier:
+        d = modifiers.apply(d)
+    else:
+        for modifier in modifiers:
+            d = modifier.apply(d)
+    return d
+
+
+def modify_dicts(dicts, modifiers):
+    if type(dicts) == dict:
+        new_dicts = modify_single_dict(dicts, modifiers)
+
+    else:
+        new_dicts = []
+        for d in dicts:
+            try:
+                d = modify_single_dict(d, modifiers)
+            except AttributeError:
+                print(f'Could Not Modify Dictionary {d["name"]}, due to Attribute Error')
+            new_dicts.append(d)
+
+    return new_dicts
+
+
+class Modifier:
+    def __init__(self,
+                 boxes,
+                 variables,
+                 coeff=1,
+                 multiply=True
+                 ):
+        self.variables = variables
+        self.boxes = boxes
+        self.coeff = coeff
+        self.multiply = multiply
+
+    def apply(self, d):
+        if d['name'] in self.boxes:
+            for var in self.variables:
+                try:
+                    if self.multiply:
+                        d[var] *= self.coeff
+                    else:
+                        d[var] += self.coeff
+                except TypeError:
+                    print('Incorrect type modified')
+        return d
