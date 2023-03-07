@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def copy_dicts(dicts):
@@ -79,6 +80,7 @@ def modified_boxes(time, vars, *boxes, axs=None, label=None, height=0, **kwargs)
 
     return fig, axs
 
+
 def copy_dicts(dicts):
     """Returns a copy of each dictionary in the list (or of an individual dictionary)
 
@@ -138,7 +140,7 @@ def modify_dicts(dicts, modifiers):
 
         Parameters
         ----------
-        d : dict or array-like
+        dicts : dict or array-like
             Dictionary or list of dictionaries to be modified
         modifiers : Modifier or array-like
             Modifier or list of modifiers to be applied to the dictionaries
@@ -186,3 +188,16 @@ class Modifier:
                 except TypeError:
                     print('Incorrect type modified')
         return d
+
+
+def add_emissions(dicts, time, start, stop, value):
+    for i, d in enumerate(dicts):
+        if d['name'] == 'atmos':
+            emit_atmos = d.copy()  # create a copy of the original atmosphere input dictionary
+            if type(emit_atmos['GtC_emissions']) == float:
+                emit_atmos['GtC_emissions'] = np.zeros(time.shape)  # creat an array to hold the emission scenario
+            emit_atmos['GtC_emissions'][(time > start) & (time <= stop)] = value  # set emissions
+            dicts[i] = emit_atmos  # insert the modified dict back into dicts
+    return dicts
+
+
