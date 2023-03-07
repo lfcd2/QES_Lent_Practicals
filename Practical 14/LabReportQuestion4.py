@@ -108,6 +108,11 @@ def question_4():
     # where 8 GtC are emitted each year.
     emit_atmos = dicts[-1].copy()  # create a copy of the original atmosphere input dictionary
     emit_atmos['GtC_emissions'] = np.zeros(time.shape)  # creat an array to hold the emission scenario
+
+    # pretty gaussian alternative
+    # for i, a in enumerate(np.zeros(time.shape)):
+    #    emit_atmos['GtC_emissions'][i] = 8*np.exp(-((i-600*2)**2)/(2*(200)**2))
+
     emit_atmos['GtC_emissions'][(time > 500) & (time <= 700)] = 8.0  # set e to 8 GtC per year between 500-700
     dicts[-1] = emit_atmos
 
