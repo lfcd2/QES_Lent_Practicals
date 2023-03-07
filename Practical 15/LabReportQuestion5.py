@@ -5,7 +5,7 @@ https://github.com/lfcd2/QES_Lent_Practicals
 """
 
 from P5main import initialise_dicts_15, ocean_model_p15
-from lfcd2OceanTools.lfcd2Tools import copy_dicts, modified_boxes
+from lfcd2OceanTools.lfcd2Tools import copy_dicts, modified_boxes, Modifier, modify_dicts, modify_single_dict
 import numpy as np
 from OceanTools.tools import plot
 import matplotlib.pyplot as plt
@@ -25,13 +25,12 @@ def run():
     emit_atmos['GtC_emissions'][(time > 200) & (time <= 400)] = 8.0  # set e to 8 GtC per year between 500-700
     dicts[-1] = emit_atmos  # insert the modified dict back into dicts
 
-    acidification_dicts = copy_dicts(dicts)  # makes a copy of dicts and changes f_CaCO3
-    acidification_dicts[0]['f_CaCO3'] /= 2
-    acidification_dicts[1]['f_CaCO3'] /= 2
+    m = Modifier(['hilat', 'lolat'], ['f_CaCO3'], 0.5)
+    acidification_dicts = modify_dicts(copy_dicts(dicts), m)
 
-    ballasting_dicts = copy_dicts(acidification_dicts)  # makes a copy of the new dicts and increases tau_PO4
-    ballasting_dicts[0]['tau_PO4'] *= 2
-    ballasting_dicts[1]['tau_PO4'] *= 2
+    m = Modifier(['hilat', 'lolat'], ['tau_PO4'], 2)
+    ballasting_dicts = modify_dicts((copy_dicts(acidification_dicts), m))  # makes a copy of the new dicts and increases tau_PO4
+
 
     # this iterates over the three model dicts
     for i, a in enumerate([('solid', 'Original Model', dicts),

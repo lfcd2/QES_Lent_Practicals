@@ -79,8 +79,52 @@ def modified_boxes(time, vars, *boxes, axs=None, label=None, height=0, **kwargs)
 
     return fig, axs
 
+def copy_dicts(dicts):
+    """Returns a copy of each dictionary in the list (or of an individual dictionary)
+
+    Parameters
+    ----------
+    dicts : array-like or dict
+        array of dictionaries to be copied
+
+    Returns
+    -------
+    new_dicts : list
+        list of copied dictionaries
+    """
+
+    if type(dicts) == dict:
+        return dicts.copy()
+
+    else:
+        try:
+            new_dicts = []
+            for dictionary in dicts:
+                new_dicts.append(dictionary.copy())
+
+            return new_dicts
+
+        except AttributeError:
+            print('Dictionaries could not be copied, output was the original dicts')
+            return dicts
+
 
 def modify_single_dict(d, modifiers):
+    """ Modifies some variables in a dictionary
+
+    Parameters
+    ----------
+    d : dict
+        Dictionary to be modified
+    modifiers : Modifier or array-like
+        Modifier or list of modifiers to be applied to the dictionaries
+
+    Returns
+    ----------
+    d : dict
+        return dictionary with modifers applied
+    """
+
     if type(modifiers) == Modifier:
         d = modifiers.apply(d)
     else:
@@ -90,6 +134,20 @@ def modify_single_dict(d, modifiers):
 
 
 def modify_dicts(dicts, modifiers):
+    """ Modifies some variables in a list of dicts
+
+        Parameters
+        ----------
+        d : dict or array-like
+            Dictionary or list of dictionaries to be modified
+        modifiers : Modifier or array-like
+            Modifier or list of modifiers to be applied to the dictionaries
+
+        Returns
+        ----------
+        d : dict or array-like
+            returns modified dictionaries as individual dict or list of dicts
+        """
     if type(dicts) == dict:
         new_dicts = modify_single_dict(dicts, modifiers)
 
