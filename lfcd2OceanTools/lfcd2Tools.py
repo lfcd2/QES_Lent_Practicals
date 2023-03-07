@@ -2,13 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def copy_dicts(dicts):
-    new_dicts = []
-    for dictionary in dicts:
-        new_dicts.append(dictionary.copy())
-    return new_dicts
-
-
 def modified_boxes(time, vars, *boxes, axs=None, label=None, height=0, **kwargs):
     """Plot a set of variables in a set of boxes.
 
