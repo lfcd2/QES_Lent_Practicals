@@ -198,16 +198,21 @@ def ocean_model_p15(dicts, tmax, dt):
         # calculate surface-specific fluxes
         for box in [hilat, lolat]:
             box_name = box['name']
+
             # temperature exchange with atmosphere
             fluxes[f'dT_{box_name}'] = \
                 box['V'] / box['tau_T'] * (box['T_atmos'] - box['T'][last]) * dt  # mol dt-1
+
             # DIC exchange with atmosphere (careful with units! Your CO2 change should be in units of mol m-3.)
             fluxes[f'dDIC_{box_name}'] = \
                 (box['V'] / box['tau_CO2']) * (box['CO2'][last] - box['K0'][last] * atmos['pCO2'][last] * 1e-3) * dt
+
             # Productivity
             fluxes[f'prod_PO4_{box_name}'] = box['V'] / box['tau_PO4'] * box['PO4'][last] * dt
-            # productivity on DIC (we add here because the bio pump is favourable for DIC, but unfavourablt for TA
+
+            # productivity on DIC (we add 106 here because the bio pump is favourable for DIC, but unfavourable for TA)
             fluxes[f'prod_DIC_{box_name}'] = fluxes[f'prod_PO4_{box_name}'] * (106 * box['f_CaCO3'] + 106)
+
             # productivity on TA
             fluxes[f'prod_TA_{box_name}'] = fluxes[f'prod_PO4_{box_name}'] * (106 * box['f_CaCO3'] * 2 - 18)
 
