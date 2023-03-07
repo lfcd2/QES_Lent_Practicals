@@ -127,6 +127,7 @@ def ocean_model_p13(lolat, hilat, deep, tmax, dt):
 
     return time, lolat, hilat, deep
 
+
 time, lolat, hilat, deep = ocean_model_p13(init_lolat, init_hilat, init_deep, 1000, 0.5)
 
 fig, axs = plot.boxes(time, ['T', 'S'], lolat, hilat, deep)
