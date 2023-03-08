@@ -42,24 +42,20 @@ def run():
 
         # if this is the model, it will make a new fig, axs and plot the graph
         if i == 0:
-            fig, axs = modified_boxes(time_array, ['pCO2'],
+            fig, axs = plot.boxes(time_array, ['pCO2'],
                                       final_lolat, final_hilat, final_deep, final_atmos, ls=ls, height=5)
         # if it's the second or third, this is the same, but it inputs the axes
         else:
             fig, axs = plot.boxes(time_array, ['pCO2'],
-                                  final_lolat, final_hilat, final_deep, final_atmos, axs=axs, ls=ls)
-
-        # plots some hidden, very small lines to add to the legend
-        plt.plot([], [], c='black', ls=ls, label=name)
+                                  final_lolat, final_hilat, final_deep, final_atmos, axs=axs, ls=ls, label=name)
 
         # prints the equilibrium values
         print('Final pCO2 Values:')
         for box in [final_lolat, final_hilat, final_atmos]:
             print(f'Model: {name}, box: {box["name"]} : {box["pCO2"][-1]} ')
 
-    # makes a legend and adjusts limits
+    # adjusts limits
     ax = axs[0]
-    ax.legend()
     ax.set_ylim(0, 1200)
     ax.set_xlim(0, tmax)
 
