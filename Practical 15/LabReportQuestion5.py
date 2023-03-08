@@ -17,7 +17,7 @@ def run():
     dicts = list(initialise_dicts_15())
 
     # create a new time axis for the model containing 3000 years with a 0.5 year time step
-    tmax = 3000  # how many years to simulate (yr)
+    tmax = 1000  # how many years to simulate (yr)
     dt = 0.5  # the time step of the simulation (yr)
     time = np.arange(0, tmax + dt, dt)  # the time axis for the model
 
@@ -27,8 +27,8 @@ def run():
     acidification_dicts = modify_dicts(copy_dicts(dicts), m)
 
     m = Modifier(['hilat', 'lolat'], ['tau_PO4'], 2)
-    ballasting_dicts = modify_dicts((copy_dicts(acidification_dicts)), m)  # makes a copy of the new dicts and increases tau_PO4
-
+    ballasting_dicts = modify_dicts((copy_dicts(acidification_dicts)), m)
+    # makes a copy of the new dicts and increases tau_PO4
 
     # this iterates over the three model dicts
     for i, a in enumerate([('solid', 'Original Model', dicts),
@@ -50,7 +50,7 @@ def run():
                                   final_lolat, final_hilat, final_deep, final_atmos, axs=axs, ls=ls)
 
         # plots some hidden, very small lines to add to the legend
-        plt.plot([-1, -2], [0, 0], c='black', ls=ls, label=name)
+        plt.plot([], [], c='black', ls=ls, label=name)
 
         # prints the equilibrium values
         print('Final pCO2 Values:')
