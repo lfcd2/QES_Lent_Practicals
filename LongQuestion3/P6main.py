@@ -26,7 +26,7 @@ Fw = 0.1  # low latitude evaporation - precipitation in units of m yr-1
 Sref = 35  # reference salinity in units of g kg-1
 E = Fw * SA_ocean * (1 - fSA_hilat) * Sref  # amount of salt removed from the low latitude box,  g kg-1 yr-1, ~ kg m-3 yr-1
 
-particle_velocity = 1  # m d-1
+particle_velocity = 10  # m d-1
 k_diss = -0.07  # d-1
 n_diss = 2.0  # unitless
 Omega_crit = 2.5  # unitless
@@ -124,7 +124,7 @@ def run():
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
 
     # this uses oscars plot function to plot DIC, TA and pCO2 (you can experiment by adding variables into this list)
-    fig, axs = plot.boxes(time_array, ['DIC', 'TA', 'pCO2', 'f_CaCO3', 'GtC_emissions'],
+    fig, axs = plot.boxes(time_array, ['DIC', 'TA', 'pCO2', 'f_CaCO3', 'GtC_emissions', 'particle_sinking_time'],
                           final_lolat, final_hilat, final_deep, final_atmos)
 
     # plot the graph

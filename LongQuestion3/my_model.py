@@ -21,7 +21,7 @@ Sref = 35  # reference salinity in units of g kg-1
 E = Fw * SA_ocean * (1 - fSA_hilat) * Sref
 # amount of salt removed from the low latitude box,  g kg-1 yr-1, ~ kg m-3 yr-1
 
-particle_velocity = 1  # m d-1
+particle_velocity = 10  # m d-1
 k_diss = -0.07  # d-1
 n_diss = 2.0  # unitless
 Omega_crit = 2.5  # unitless
@@ -57,7 +57,7 @@ def ocean_model_q3(dicts, tmax, dt):
     # identify which variables will change with time - we will iterate over these lists
     model_vars = ['T', 'S', 'DIC', 'TA', 'PO4']
     atmos_model_vars = ['moles_CO2', 'pCO2']
-    track_vars = ['f_CaCO3']
+    track_vars = ['f_CaCO3', 'particle_sinking_time']
     '''
     create copies of the input dictionaries, so we don't modify the originals
     this is unnecessary if you are using a decent IDE and running the code locally, so I've commented them out
@@ -150,9 +150,9 @@ def ocean_model_q3(dicts, tmax, dt):
                 ((rho_org + box['f_CaCO3'][last] * 10 / 3 * rho_org) /
                  (1 + box['f_CaCO3'][last] * 10 / 3 * rho_org / rho_CaCO3)
                  - 1000)
-            box['particle_sinking_time'] = box['depth'] / v
+            box['particle_sinking_time'][i] = box['depth'] / v
 
-            exponential_factor = np.exp(- box['k_ballast'] * box['depth'] / v)
+            exponential_factor = np.exp(- box['k_ballast'] * box['depth'] / (v*24*60*60))
 
             # Productivity
             fluxes[f'prod_PO4_{box_name}'] = box['V'] / box['tau_PO4'] * box['PO4'][last] * dt * 5 * exponential_factor
@@ -221,7 +221,7 @@ def ocean_model_q3(dicts, tmax, dt):
             if box['Omega'][i] > Omega_crit:
                 f_remaining = 1
             else:
-                f_remaining = np.exp(k_diss * box['particle_sinking_time'] * (Omega_crit - box['Omega'][i]) ** n_diss)
+                f_remaining = np.exp(k_diss * box['particle_sinking_time'][i] * (Omega_crit - box['Omega'][i]) ** n_diss)
             box['f_CaCO3'][i] = calc_slope * box['Omega'][i] * f_remaining
 
         # ===================== UPDATE ATMOSPHERE BOX ===================== #
