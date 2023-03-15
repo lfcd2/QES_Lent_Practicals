@@ -56,6 +56,7 @@ def init_dicts_16():
         'f_CaCO3': 0.18134,  # fraction of organic matter export that produces CaCO3 at starting [CO3]
         'k_ballast': 0.0805,
         'rho_particle': 1416.27,
+        'v': 10.,
     }
     init_hilat['V'] = init_hilat['SA'] * init_hilat['depth']  # box volume, m3
 
@@ -77,6 +78,7 @@ def init_dicts_16():
         'f_CaCO3': 0.30453,  # fraction of organic matter export that produces CaCO3 at starting [CO3]
         'k_ballast': 0.1609,
         'rho_particle': 1568.14,
+        'v': 10,
     }
     init_lolat['V'] = init_lolat['SA'] * init_lolat['depth']  # box volume, m3
 
@@ -115,16 +117,16 @@ def run():
     tmax = 2000  # how many years to simulate (yr)
     dt = 0.5  # the time step of the simulation (yr)
     time = np.arange(0, tmax + dt, dt)  # the time axis for the model
-    dicts = add_emissions(dicts, time, 800, 1000, 16)
+    dicts = add_emissions(dicts, time, 800, 1000, 8)
 
     # this line of code runs the model
-    time_array, finished_dicts = ocean_model_q3(dicts, 2000, 0.5)
+    time_array, finished_dicts = ocean_model_q3(copy_dicts(dicts), 2000, 0.5)
 
     # this unpacks the result that is output from the model
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
 
     # this uses oscars plot function to plot DIC, TA and pCO2 (you can experiment by adding variables into this list)
-    fig, axs = plot.boxes(time_array, ['DIC', 'TA', 'pCO2', 'f_CaCO3', 'GtC_emissions', 'particle_sinking_time'],
+    fig, axs = plot.boxes(time_array, ['DIC', 'TA', 'pCO2', 'f_CaCO3', 'GtC_emissions', 'particle_sinking_time', 'Omega'],
                           final_lolat, final_hilat, final_deep, final_atmos)
 
     # plot the graph
