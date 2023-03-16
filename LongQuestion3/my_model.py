@@ -147,10 +147,7 @@ def ocean_model_q3(dicts, tmax, dt):
             fluxes[f'dDIC_{box_name}'] = \
                 (box['V'] / box['tau_CO2']) * (box['CO2'][last] - box['K0'][last] * atmos['pCO2'][last] * 1e-3) * dt
 
-            rho_org = 1100
-            rho_CaCO3 = 2700
             rho_p = (rho_org + box['f_CaCO3'][last] * 10 / 3 * rho_org) / (1 + box['f_CaCO3'][last] * 10 / 3 * rho_org / rho_CaCO3)
-
             v = particle_velocity * (rho_p - 1000) / (box['rho_particle'] - 1000)
             box['particle_sinking_time'][i] = box['depth'] / v
             exponential_factor = np.exp(- box['k_ballast'] * box['particle_sinking_time'][i] / (24*60*60))

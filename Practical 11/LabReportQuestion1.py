@@ -98,7 +98,7 @@ def plot_graph():
     axs[0].fill_between(steps, -5, 5, color='lightgray')
 
     # adds the bottom legend, but with more fancy positioning etc
-    axs[2].legend(loc='upper center', bbox_to_anchor=(0.761, 1.035), title='Value of D', ncol=3, fancybox=True)
+    axs[2].legend(title='Value of D', ncol=3, fancybox=True)
 
     # makes it pretty :)
     fig.tight_layout()

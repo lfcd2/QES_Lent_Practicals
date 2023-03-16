@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from OceanTools.tools import plot
+from lfcd2OceanTools.lfcd2Tools import copy_dicts
 
 # global variables
 V_ocean = 1.34e18  # volume of the ocean in m3
@@ -128,6 +129,23 @@ def ocean_model(lolat, hilat, deep, tmax, dt):
 
 time, lolat, hilat, deep = ocean_model(init_lolat, init_hilat, init_deep, 1000, 0.5)
 
-fig, axs = plot.boxes(time, ['T', 'S'], lolat, hilat, deep)
+fig, axs = plot.boxes(time, ['T', 'S'], hilat)
+
+lo, hi, de = copy_dicts([init_lolat, init_hilat, init_deep])
+lo['tau_M'] *= 2
+hi['tau_M'] *= 2
+time, lo, hi, de = ocean_model(lo, hi, de, 1000, 0.5)
+plot.boxes(time, ['T', 'S'], hi, axs=axs, ls='dotted', label='double tau m')
+
+
+lo, hi, de = copy_dicts([init_lolat, init_hilat, init_deep])
+lo['tau_M'] /= 2
+hi['tau_M'] /= 2
+time, lo, hi, de = ocean_model(lo, hi, de, 1000, 0.5)
+plot.boxes(time, ['T', 'S'], hi, axs=axs, ls='--', label='half tau m')
+
+axs[0].set_ylim(3, 4.5)
+
+plt.savefig('Lab_Report_Q3_Output.png', dpi=600)
 plt.show()
 

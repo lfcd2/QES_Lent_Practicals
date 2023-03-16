@@ -10,12 +10,12 @@ from matplotlib import pyplot as plt
 
 def main():
     fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(8, 10), sharex=True)
-    for i, tau in enumerate([2, 10, 50, 100, 200]):
+    for i, tau in enumerate([2, 10, 25, 50, 100, 150, 200]):
         # Set various model parameters
         alpha = 2e-4  # thermal expansion coefficient
         beta = 7e-4  # haline contraction coefficient
         k = 8.3e17  # proportionality coefficient to convert change in T and S to volume flux in units of m³/year
-        tau = 2  # Timescale for atmosphere/ocean temperature relaxation in years
+        # tau = 2  # Timescale for atmosphere/ocean temperature relaxation in years
 
         # Set the areas and volumes of the boxes
         SA_ocean = 3.58e14  # Surface area of the ocean
@@ -87,16 +87,20 @@ def main():
         # plots Q
         axs[2].plot(times, Q, color=c, label=tau)
 
-        # Decorate figure
-        axs[0].legend()
-        axs[2].legend(title='Temperature\nRelaxation')
-        axs[0].set_ylabel('Temperature ( ̊C)')
-        axs[1].set_ylabel('Salinity')
-        axs[2].set_ylabel('Latitudinal flow strength ($m^{3}yr^{-1}$)')
-        axs[2].set_xlabel('Time (years)')
+    # Decorate figure
+    axs[0].legend(loc='upper right')
+    axs[2].legend(title='Temperature\nRelaxation', loc='upper right')
+    axs[0].set_ylabel('Temperature ( ̊C)')
+    axs[1].set_ylabel('Salinity (PSS)')
+    axs[2].set_ylabel('Latitudinal flow strength ($m^{3}yr^{-1}$)')
+    axs[2].set_xlabel('Time (years)')
 
-        # show figure
-        plt.show()
+    for ax in axs:
+        ax.set_xlim(0, 1000)
+    # show figure
+    fig.tight_layout()
+    plt.savefig('Lab_Report_Q2_Output.png', dpi=600)
+    plt.show()
 
 
 if __name__ == "__main__":
