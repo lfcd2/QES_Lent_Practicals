@@ -127,25 +127,29 @@ def ocean_model(lolat, hilat, deep, tmax, dt):
     return time, lolat, hilat, deep
 
 
-time, lolat, hilat, deep = ocean_model(init_lolat, init_hilat, init_deep, 1000, 0.5)
+time, lolat, hilat, deep = ocean_model(init_lolat, init_hilat, init_deep, 200, 0.5)
 
 fig, axs = plot.boxes(time, ['T', 'S'], hilat)
 
 lo, hi, de = copy_dicts([init_lolat, init_hilat, init_deep])
 lo['tau_M'] *= 2
 hi['tau_M'] *= 2
-time, lo, hi, de = ocean_model(lo, hi, de, 1000, 0.5)
-plot.boxes(time, ['T', 'S'], hi, axs=axs, ls='dotted', label='double tau m')
+time, lo, hi, de = ocean_model(lo, hi, de, 200, 0.5)
+plot.boxes(time, ['T', 'S'], hi, axs=axs, ls='dotted', label=r'double $\tau_m$')
 
 
 lo, hi, de = copy_dicts([init_lolat, init_hilat, init_deep])
 lo['tau_M'] /= 2
 hi['tau_M'] /= 2
-time, lo, hi, de = ocean_model(lo, hi, de, 1000, 0.5)
-plot.boxes(time, ['T', 'S'], hi, axs=axs, ls='--', label='half tau m')
+time, lo, hi, de = ocean_model(lo, hi, de, 200, 0.5)
+plot.boxes(time, ['T', 'S'], hi, axs=axs, ls='--', label=r'half $\tau_m$')
 
-axs[0].set_ylim(3, 4.5)
-
+axs[0].set_ylim(3, 10)
+axs[0].set_ylabel('Temperature ( ̊C)')
+axs[1].set_ylabel('Salinity (PSS)')
+axs[1].set_xlabel('Time (years)')
+plt.suptitle('Plots of high latitude temperature and salinity against time')
 plt.savefig('Lab_Report_Q3_Output.png', dpi=600)
+axs[1].get_legend().remove()
 plt.show()
 

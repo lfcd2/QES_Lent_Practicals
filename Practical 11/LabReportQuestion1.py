@@ -81,13 +81,13 @@ def plot_graph():
         ax.set_xlim(0, max_t)
 
     # adds reference bars, with labels, and then adds a legend
-    axs[1].plot([0, max_t], [IL, IL], 'k--', label='Incoming Radiation (Low Latitude)')
-    axs[1].plot([0, max_t], [IH, IH], 'k-.', label='Incoming Radiation (High Latitude)')
-    axs[1].legend()
+    axs[1].plot([0, max_t], [IL, IL], 'k--', label='Low Latitude')
+    axs[1].plot([0, max_t], [IH, IH], 'k-.', label='High Latitude')
+    axs[1].legend(title='Incoming Radiation')
 
     # adds more text and labels
     axs[0].text(10, 15.5, 'Top sets = low latitudes, bottom sets = high latitudes, '
-                          'Shaded areas represent range of normal temperatures', c='grey')
+                          'Shaded areas represent range of normal temperatures', c='black')
     axs[0].set_ylabel('Temperature ( ̊C)')
     axs[1].set_ylabel('Heat Flux (Wm$^{-2}$)')
     axs[2].set_ylabel('Latitudinal Heat Flow (Wm$^{-2}$)')
@@ -98,7 +98,7 @@ def plot_graph():
     axs[0].fill_between(steps, -5, 5, color='lightgray')
 
     # adds the bottom legend, but with more fancy positioning etc
-    axs[2].legend(title='Value of D', ncol=3, fancybox=True)
+    axs[2].legend(title='Values of D', ncol=3, fancybox=True)
 
     # makes it pretty :)
     fig.tight_layout()

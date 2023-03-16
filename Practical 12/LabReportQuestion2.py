@@ -89,7 +89,7 @@ def main():
 
     # Decorate figure
     axs[0].legend(loc='upper right')
-    axs[2].legend(title='Temperature\nRelaxation', loc='upper right')
+    axs[2].legend(title='Temperature\n'+r'Relaxation ($\tau$)', loc='upper right')
     axs[0].set_ylabel('Temperature ( ̊C)')
     axs[1].set_ylabel('Salinity (PSS)')
     axs[2].set_ylabel('Latitudinal flow strength ($m^{3}yr^{-1}$)')
@@ -98,6 +98,7 @@ def main():
     for ax in axs:
         ax.set_xlim(0, 1000)
     # show figure
+    plt.suptitle('Plots of model variables against time')
     fig.tight_layout()
     plt.savefig('Lab_Report_Q2_Output.png', dpi=600)
     plt.show()

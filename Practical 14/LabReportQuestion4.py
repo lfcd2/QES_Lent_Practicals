@@ -122,6 +122,12 @@ def question_4():
     fig, axs = plot.boxes(time_array, ['DIC', 'pCO2', 'GtC_emissions'],
                           final_lolat, final_hilat, final_deep, final_atmos)
 
+    axs[-1].set_xlabel('Time (Years)')
+    axs[-1].set_ylabel('Emissions (GtC)')
+    axs[1].set_ylabel('pCO2 (ppm)')
+    axs[0].set_ylabel(r'DIC (mol m$^{-3}$)')
+    plt.suptitle('Plots of model variables against time')
+    plt.savefig('Lab_Report_Q4_Output.png', dpi=600)
     plt.show()
 
 

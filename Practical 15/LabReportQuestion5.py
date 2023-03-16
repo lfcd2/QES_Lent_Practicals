@@ -42,11 +42,11 @@ def run():
 
         # if this is the model, it will make a new fig, axs and plot the graph
         if i == 0:
-            fig, axs = plot.boxes(time_array, ['pCO2'],
+            fig, axs = plot.boxes(time_array, ['pCO2', 'TA', 'DIC'],
                                   final_lolat, final_hilat, final_deep, final_atmos, ls=ls, height=5)
         # if it's the second or third, this is the same, but it inputs the axes
         else:
-            fig, axs = plot.boxes(time_array, ['pCO2'],
+            fig, axs = plot.boxes(time_array, ['pCO2', 'TA', 'DIC'],
                                   final_lolat, final_hilat, final_deep, final_atmos, axs=axs, ls=ls, label=name)
 
         # prints the equilibrium values
