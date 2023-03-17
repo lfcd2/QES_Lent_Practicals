@@ -1,8 +1,5 @@
 from cbsyst import Csys
 import numpy as np
-import matplotlib.pyplot as plt
-from OceanTools.tools import plot
-from OceanTools.tools.helpers import get_last_values
 from tqdm import tqdm
 
 # global variables
@@ -23,8 +20,8 @@ E = Fw * SA_ocean * (1 - fSA_hilat) * Sref
 
 particle_velocity = 10  # m d-1
 k_diss = -0.07  # d-1
-n_diss = 2.0  # unitless
-Omega_crit = 2.5  # unitless
+n_diss = 2.0  # unit less
+Omega_crit = 2.5  # unit less
 calc_slope = 0.12  # f_CaCO3 / Omega
 rho_org = 1100
 rho_CaCO3 = 2700
@@ -57,7 +54,7 @@ def ocean_model_q3(dicts, tmax, dt):
     # identify which variables will change with time - we will iterate over these lists
     model_vars = ['T', 'S', 'DIC', 'TA', 'PO4']
     atmos_model_vars = ['moles_CO2', 'pCO2']
-    track_vars = ['f_CaCO3', 'particle_sinking_time', 'v']
+    track_vars = ['f_CaCO3', 'particle_sinking_time', 'exp']
 
     '''
     create copies of the input dictionaries, so we don't modify the originals
@@ -147,13 +144,14 @@ def ocean_model_q3(dicts, tmax, dt):
             fluxes[f'dDIC_{box_name}'] = \
                 (box['V'] / box['tau_CO2']) * (box['CO2'][last] - box['K0'][last] * atmos['pCO2'][last] * 1e-3) * dt
 
-            rho_p = (rho_org + box['f_CaCO3'][last] * 10 / 3 * rho_org) / (1 + box['f_CaCO3'][last] * 10 / 3 * rho_org / rho_CaCO3)
+            rho_p = (rho_org + box['f_CaCO3'][last] * 10 / 3 * rho_org) / (
+                    1 + box['f_CaCO3'][last] * 10 / 3 * rho_org / rho_CaCO3)
             v = particle_velocity * (rho_p - 1000) / (box['rho_particle'] - 1000)
-            box['particle_sinking_time'][i] = box['depth'] / v
-            exponential_factor = np.exp(- box['k_ballast'] * box['particle_sinking_time'][i] / (24*60*60))
+            box['particle_sinking_time'][last] = box['depth'] / v
+            box['exp'][i] = np.exp(- box['k_ballast'] * box['particle_sinking_time'][last])
 
             # Productivity
-            fluxes[f'prod_PO4_{box_name}'] = box['V'] / box['tau_PO4'] * box['PO4'][last] * dt * 5 * exponential_factor
+            fluxes[f'prod_PO4_{box_name}'] = box['V'] / box['tau_PO4'] * box['PO4'][last] * dt * 5 * box['exp'][i]
 
             # productivity on DIC (we add 106 here because the bio pump is favourable for DIC, but unfavourable for TA)
             fluxes[f'prod_DIC_{box_name}'] = fluxes[f'prod_PO4_{box_name}'] * (106 * box['f_CaCO3'][last] + 106)
@@ -219,7 +217,8 @@ def ocean_model_q3(dicts, tmax, dt):
             if box['Omega'][i] > Omega_crit:
                 f_remaining = 1
             else:
-                f_remaining = np.exp(k_diss * box['particle_sinking_time'][last] * (Omega_crit - box['Omega'][i]) ** n_diss)
+                f_remaining = np.exp(k_diss * box['particle_sinking_time'][last] *
+                                     (Omega_crit - box['Omega'][i]) ** n_diss)
             box['f_CaCO3'][i] = calc_slope * box['Omega'][i] * f_remaining
 
         # ===================== UPDATE ATMOSPHERE BOX ===================== #

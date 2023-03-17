@@ -56,7 +56,7 @@ def init_dicts_16():
         'f_CaCO3': 0.18134,  # fraction of organic matter export that produces CaCO3 at starting [CO3]
         'k_ballast': 0.0805,
         'rho_particle': 1416.27,
-        'v': 10.,
+        'exp': 0.2
     }
     init_hilat['V'] = init_hilat['SA'] * init_hilat['depth']  # box volume, m3
 
@@ -78,7 +78,7 @@ def init_dicts_16():
         'f_CaCO3': 0.30453,  # fraction of organic matter export that produces CaCO3 at starting [CO3]
         'k_ballast': 0.1609,
         'rho_particle': 1568.14,
-        'v': 10,
+        'exp': 0.2
     }
     init_lolat['V'] = init_lolat['SA'] * init_lolat['depth']  # box volume, m3
 
@@ -126,7 +126,7 @@ def run():
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
 
     # this uses oscars plot function to plot DIC, TA and pCO2 (you can experiment by adding variables into this list)
-    fig, axs = plot.boxes(time_array, ['DIC', 'TA', 'pCO2', 'f_CaCO3', 'GtC_emissions', 'particle_sinking_time', 'Omega'],
+    fig, axs = plot.boxes(time_array, ['DIC', 'exp', 'pCO2', 'f_CaCO3', 'GtC_emissions', 'particle_sinking_time', 'Omega'],
                           final_lolat, final_hilat, final_deep, final_atmos)
 
     # plot the graph
