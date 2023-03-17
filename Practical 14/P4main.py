@@ -90,7 +90,7 @@ def ocean_model_p14(dicts, tmax, dt):
         )
         box['CO2'] = csys.CO2 * 1e-3  # 1e3 converts back to mol m-3
         box['pH'] = csys.pHtot  # this is -log10([H+])
-        #box['pCO2'] = csys.pCO2  # this is already in the right units (ppm)
+        box['pCO2'] = csys.pCO2  # this is already in the right units (ppm)
         box['K0'] = csys.Ks.K0  # Henry's law constant - [CO2] = K0 * pCO2
 
     # Create a dictionary to keep track of the fluxes calculated at each step
@@ -169,7 +169,7 @@ def ocean_model_p14(dicts, tmax, dt):
             )
             box['CO2'][i] = csys.CO2 * 1e-3  # 1e3 converts back to mol m-3
             box['pH'][i] = csys.pHtot  # this is -log10([H+])
-           # box['pCO2'][i] = csys.pCO2  # this is already in the right units (ppm)
+            box['pCO2'][i] = csys.pCO2  # this is already in the right units (ppm)
             box['K0'][i] = csys.Ks.K0  # Henry's law constant - [CO2] = K0 * pCO2
 
         # ===================== UPDATE ATMOSPHERE BOX ===================== #
