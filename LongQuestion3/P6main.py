@@ -144,6 +144,7 @@ def run():
                axs=axs, label='Ballasting Feedback Model', ls='dashed')
 
     # plot the graph
+    plt.savefig('LongQuestionPlot.png', dpi=600)
     plt.show()
 
 
