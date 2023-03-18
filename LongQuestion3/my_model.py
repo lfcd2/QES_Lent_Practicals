@@ -23,7 +23,7 @@ k_diss = -0.07  # d-1
 n_diss = 2.0  # unit less
 Omega_crit = 2.5  # unit less
 calc_slope = 0.12  # f_CaCO3 / Omega
-rho_org = 1100
+rho_org = 1200
 rho_CaCO3 = 2700
 
 

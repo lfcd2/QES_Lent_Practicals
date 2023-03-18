@@ -31,7 +31,7 @@ k_diss = -0.07  # d-1
 n_diss = 2.0  # unitless
 Omega_crit = 2.5  # unitless
 calc_slope = 0.12  # f_CaCO3 / Omega
-rho_org = 1100
+rho_org = 1200
 rho_CaCO3 = 2700
 
 
@@ -120,7 +120,7 @@ def run():
     dicts = add_emissions(dicts, time, 800, 1000, 8)
 
     # this line of code runs the model
-    time_array, finished_dicts = ocean_model_q3(copy_dicts(dicts), 2000, 0.5)
+    time_array, finished_dicts = original_model(copy_dicts(dicts), 2000, 0.5)
 
     # this unpacks the result that is output from the model
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
@@ -128,6 +128,20 @@ def run():
     # this uses oscars plot function to plot DIC, TA and pCO2 (you can experiment by adding variables into this list)
     fig, axs = plot.boxes(time_array, ['DIC', 'exp', 'pCO2', 'f_CaCO3', 'GtC_emissions', 'particle_sinking_time', 'Omega'],
                           final_lolat, final_hilat, final_deep, final_atmos)
+
+    time_array, finished_dicts = acidification_model(copy_dicts(dicts), 2000, 0.5)
+    final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
+    plot.boxes(time_array,
+               ['DIC', 'exp', 'pCO2', 'f_CaCO3', 'GtC_emissions', 'particle_sinking_time', 'Omega'],
+               final_lolat, final_hilat, final_deep, final_atmos,
+               axs=axs, label='Acidification Model', ls='dotted')
+
+    time_array, finished_dicts = ocean_model_q3(copy_dicts(dicts), 2000, 0.5)
+    final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
+    plot.boxes(time_array,
+               ['DIC', 'exp', 'pCO2', 'f_CaCO3', 'GtC_emissions', 'particle_sinking_time', 'Omega'],
+               final_lolat, final_hilat, final_deep, final_atmos,
+               axs=axs, label='Ballasting Feedback Model', ls='dashed')
 
     # plot the graph
     plt.show()
