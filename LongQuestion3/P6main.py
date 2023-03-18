@@ -1,10 +1,7 @@
-from cbsyst import Csys
 import numpy as np
 import matplotlib.pyplot as plt
 from OceanTools.tools import plot
-from OceanTools.tools.helpers import get_last_values
-from lfcd2OceanTools.lfcd2Tools import copy_dicts, modified_boxes, Modifier,\
-    modify_dicts, modify_single_dict, add_emissions
+from lfcd2OceanTools.lfcd2Tools import copy_dicts, add_emissions, add_fancy_labels
 
 from default_model import original_model
 from acidification_model import acidification_model
@@ -24,7 +21,7 @@ Q_k = 8.3e17
 # salinity balance - the total amount of salt added or removed to the surface boxes
 Fw = 0.1  # low latitude evaporation - precipitation in units of m yr-1
 Sref = 35  # reference salinity in units of g kg-1
-E = Fw * SA_ocean * (1 - fSA_hilat) * Sref  # amount of salt removed from the low latitude box,  g kg-1 yr-1, ~ kg m-3 yr-1
+E = Fw * SA_ocean * (1 - fSA_hilat) * Sref  # amount of salt removed from the low lat box,  g kg-1 yr-1, ~ kg m-3 yr-1
 
 particle_velocity = 10  # m d-1
 k_diss = -0.07  # d-1
@@ -113,11 +110,13 @@ def run():
     """
 
     # this line of code runs initialise_dicts which sets up the initial dictionaries
-    dicts = init_dicts_16()
+    init_dicts = init_dicts_16()
     tmax = 2000  # how many years to simulate (yr)
     dt = 0.5  # the time step of the simulation (yr)
     time = np.arange(0, tmax + dt, dt)  # the time axis for the model
-    dicts = add_emissions(dicts, time, 800, 1000, 8)
+    dicts = add_emissions(copy_dicts(init_dicts), time, 600, 800, 8)
+
+    vars_to_plot = ['DIC', 'TA', 'pCO2', 'particle_sinking_time', 'f_CaCO3', 'GtC_emissions']
 
     # this line of code runs the model
     time_array, finished_dicts = original_model(copy_dicts(dicts), 2000, 0.5)
@@ -126,26 +125,52 @@ def run():
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
 
     # this uses oscars plot function to plot DIC, TA and pCO2 (you can experiment by adding variables into this list)
-    fig, axs = plot.boxes(time_array, ['DIC', 'exp', 'pCO2', 'f_CaCO3', 'GtC_emissions', 'particle_sinking_time', 'Omega'],
-                          final_lolat, final_hilat, final_deep, final_atmos)
+    fig, axs = plot.boxes(time_array, vars_to_plot, final_lolat, final_hilat, final_deep, final_atmos)
 
     time_array, finished_dicts = acidification_model(copy_dicts(dicts), 2000, 0.5)
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
-    plot.boxes(time_array,
-               ['DIC', 'exp', 'pCO2', 'f_CaCO3', 'GtC_emissions', 'particle_sinking_time', 'Omega'],
-               final_lolat, final_hilat, final_deep, final_atmos,
+    plot.boxes(time_array, vars_to_plot, final_lolat, final_hilat, final_deep, final_atmos,
                axs=axs, label='Acidification Model', ls='dotted')
 
     time_array, finished_dicts = ocean_model_q3(copy_dicts(dicts), 2000, 0.5)
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
-    plot.boxes(time_array,
-               ['DIC', 'exp', 'pCO2', 'f_CaCO3', 'GtC_emissions', 'particle_sinking_time', 'Omega'],
-               final_lolat, final_hilat, final_deep, final_atmos,
+    plot.boxes(time_array, vars_to_plot, final_lolat, final_hilat, final_deep, final_atmos,
                axs=axs, label='Ballasting Feedback Model', ls='dashed')
 
-    # plot the graph
-    plt.savefig('LongQuestionPlot.png', dpi=600)
+    plt.suptitle('Plot of model variables for different models')
+    fig.tight_layout()
+    add_fancy_labels(axs, vars_to_plot)
+
+    # plot the graphs
+    plt.savefig('pics/LongQuestionPlot1.png', dpi=600)
     plt.show()
+
+    models = [ocean_model_q3, acidification_model, original_model]
+    names = ['Ballasting Feedback', 'Acidification', 'Original']
+    for i, model in enumerate(models):
+
+        vars_to_plot = ['DIC', 'TA', 'pCO2', 'GtC_emissions'] if names[i] == 'Original' else vars_to_plot
+
+        time_array, finished_dicts = model(copy_dicts(dicts), 2000, 0.5)
+        final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
+        fig, axs = plot.boxes(time_array, vars_to_plot, final_lolat, final_hilat, final_deep, final_atmos,
+                              label='Emissions', ls='solid')
+
+        time_array, finished_dicts = model(copy_dicts(init_dicts), 2000, 0.5)
+        final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
+        plot.boxes(time_array, vars_to_plot, final_lolat, final_hilat, final_deep, final_atmos,
+                   axs=axs, label='No Emissions', ls='dashed')
+
+        handles, labels = axs[-2].get_legend_handles_labels()
+        handles.pop(1)
+        labels.pop(1)
+        axs[-2].legend(handles, labels)
+        plt.suptitle(f'Plot of model variables for {names[i]} Model')
+        fig.tight_layout()
+        add_fancy_labels(axs, vars_to_plot)
+
+        plt.savefig(f'pics/LongQuestionPlot{names[i].replace(" ", "")}Model.png', dpi=600)
+        plt.show()
 
 
 if __name__ == '__main__':
