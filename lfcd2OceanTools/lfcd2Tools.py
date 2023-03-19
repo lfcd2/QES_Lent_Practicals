@@ -197,10 +197,14 @@ def add_emissions(dicts, time, start, stop, value):
 def add_fancy_labels(axs, vars_to_plot):
     if 'f_CaCO3' in vars_to_plot:
         axs[vars_to_plot.index('f_CaCO3')].set_ylabel(r'$f_{CaCO_{3}}$ (unitless)')
-    axs[vars_to_plot.index('pCO2')].set_ylabel(r'$pCO_{2} (ppm)$')
-    axs[vars_to_plot.index('DIC')].set_ylabel(r'DIC (mol m$^{-3}$)')
-    axs[vars_to_plot.index('TA')].set_ylabel(r'TA (mol m$^{-3}$)')
+    if 'pCO2' in vars_to_plot:
+        axs[vars_to_plot.index('pCO2')].set_ylabel(r'$pCO_{2} (ppm)$')
+    if 'DIC' in vars_to_plot:
+        axs[vars_to_plot.index('DIC')].set_ylabel(r'DIC (mol m$^{-3}$)')
+    if 'TA' in vars_to_plot:
+        axs[vars_to_plot.index('TA')].set_ylabel(r'TA (mol m$^{-3}$)')
     if 'particle_sinking_time' in vars_to_plot:
         axs[vars_to_plot.index('particle_sinking_time')].set_ylabel(r'Sinking Time (days)')
-    axs[vars_to_plot.index('GtC_emissions')].set_ylabel(r'Emissions (GtC)')
+    if 'GtC_emissions' in vars_to_plot:
+        axs[vars_to_plot.index('GtC_emissions')].set_ylabel(r'Emissions (GtC)')
     return axs

@@ -116,7 +116,7 @@ def run():
     time = np.arange(0, tmax + dt, dt)  # the time axis for the model
     dicts = add_emissions(copy_dicts(init_dicts), time, 600, 800, 8)
 
-    vars_to_plot = ['DIC', 'TA', 'pCO2', 'particle_sinking_time', 'f_CaCO3', 'GtC_emissions']
+    vars_to_plot = ['DIC', 'TA', 'pCO2', 'particle_sinking_time', 'f_CaCO3']
 
     # this line of code runs the model
     time_array, finished_dicts = original_model(copy_dicts(dicts), 2000, 0.5)
@@ -140,6 +140,11 @@ def run():
     plt.suptitle('Plot of model variables for different models')
     fig.tight_layout()
     add_fancy_labels(axs, vars_to_plot)
+    for ax in axs:
+        maximum = ax.get_ylim()[1]
+        minimum = ax.get_ylim()[0]
+        ax.set_ylim(minimum, maximum)
+        ax.fill_between((600, 800), (minimum, minimum), (maximum, maximum), color='lightgray')
 
     # plot the graphs
     plt.savefig('pics/LongQuestionPlot1.png', dpi=600)
@@ -149,7 +154,8 @@ def run():
     names = ['Ballasting Feedback', 'Acidification', 'Original']
     for i, model in enumerate(models):
 
-        vars_to_plot = ['DIC', 'TA', 'pCO2', 'GtC_emissions'] if names[i] == 'Original' else vars_to_plot
+        vars_to_plot = ['DIC', 'pCO2'] if names[i] == 'Original' else vars_to_plot
+        vars_to_plot = ['DIC', 'TA', 'pCO2', 'f_CaCO3'] if names[i] == 'Acidification' else vars_to_plot
 
         time_array, finished_dicts = model(copy_dicts(dicts), 2000, 0.5)
         final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
@@ -168,6 +174,11 @@ def run():
         plt.suptitle(f'Plot of model variables for {names[i]} Model')
         fig.tight_layout()
         add_fancy_labels(axs, vars_to_plot)
+        for ax in axs:
+            maximum = ax.get_ylim()[1]
+            minimum = ax.get_ylim()[0]
+            ax.set_ylim(minimum, maximum)
+            ax.fill_between((600, 800), (minimum, minimum), (maximum, maximum), color='lightgray')
 
         plt.savefig(f'pics/LongQuestionPlot{names[i].replace(" ", "")}Model.png', dpi=600)
         plt.show()

@@ -115,16 +115,8 @@ def acidification_model(dicts, tmax, dt):
             fluxes[f'dCO2_{boxname}'] = box['V'] / box['tau_CO2'] * (
                         box['CO2'][last] - 1e-3 * atmos['pCO2'][last] * box['K0'][last]) * dt  # mol dt-1
 
-            rho_org = 1100
-            rho_CaCO3 = 2700
-            rho_p = (rho_org + box['f_CaCO3'][last] * 10 / 3 * rho_org) / (
-                        1 + box['f_CaCO3'][last] * 10 / 3 * rho_org / rho_CaCO3)
-            v = particle_velocity * (rho_p - 1000) / (box['rho_particle'] - 1000)
-            box['particle_sinking_time'][i] = box['depth'] / v
-            exponential_factor = np.exp(- box['k_ballast'] * box['particle_sinking_time'][i])
-
             # organic matter production
-            fluxes[f'export_PO4_{boxname}'] = box['PO4'][last] * box['V'] / box['tau_PO4'] * dt * 5 * exponential_factor # mol PO4 dt-1
+            fluxes[f'export_PO4_{boxname}'] = box['PO4'][last] * box['V'] / box['tau_PO4'] * dt # mol PO4 dt-1
 
             ### MODIFIED CODE
             # DIC export by productivity :                                  redfield + calcification
@@ -185,7 +177,7 @@ def acidification_model(dicts, tmax, dt):
             if box['Omega'][i] > Omega_crit:
                 f_remaining = 1
             else:
-                f_remaining = np.exp(k_diss * box['particle_sinking_time'][i] * (Omega_crit - box['Omega'][i]) ** n_diss)
+                f_remaining = np.exp(k_diss * box['particle_sinking_time'][0] * (Omega_crit - box['Omega'][i]) ** n_diss)
             box['f_CaCO3'][i] = calc_slope * box['Omega'][i] * f_remaining
             ###
 
