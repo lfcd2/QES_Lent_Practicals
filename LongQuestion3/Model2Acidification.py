@@ -37,7 +37,7 @@ def acidification_model(dicts, tmax, dt):
     model_vars = ['T', 'S', 'DIC', 'TA', 'PO4']
     atmos_model_vars = ['moles_CO2', 'pCO2']
     ### NEW CODE
-    track_vars = ['f_CaCO3', 'particle_sinking_time', 'v']
+    track_vars = ['f_CaCO3', 'particle_sinking_time', 'v', 'DIC_export', 'TA_export']
     ###
 
     # create copies of the input dictionaries so we don't modify the originals
@@ -48,6 +48,9 @@ def acidification_model(dicts, tmax, dt):
 
     # turn all time-evolving variables into arrays containing the start values
     for box in [lolat, hilat, deep]:
+        if box != deep:
+            box['DIC_export'] = 0.
+            box['TA_export'] = 0.
         for k in model_vars:
             box[k] = np.full(time.shape, box[k])
         ### NEW CODE
@@ -122,9 +125,12 @@ def acidification_model(dicts, tmax, dt):
             # DIC export by productivity :                                  redfield + calcification
             fluxes[f'export_DIC_{boxname}'] = fluxes[f'export_PO4_{boxname}'] * (
                         106 + 106 * box['f_CaCO3'][last])  # mol DIC dt-1
+            box['DIC_export'][i] = fluxes[f'export_DIC_{boxname}'] / (dt*box['V'])
+
             # TA export by productivity :                                  redfield + calcification
             fluxes[f'export_TA_{boxname}'] = fluxes[f'export_PO4_{boxname}'] * (
                         -18 + 2 * 106 * box['f_CaCO3'][last])  # mol TA dt-1
+            box['TA_export'][i] = fluxes[f'export_TA_{boxname}'] / (dt*box['V'])
 
         fluxes['dCO2_emissions'] = atmos['GtC_emissions'][last] * 1e15 / 12 * dt  # mol dt-1
 

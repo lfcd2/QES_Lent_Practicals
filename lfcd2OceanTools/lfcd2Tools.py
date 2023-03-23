@@ -183,13 +183,20 @@ class Modifier:
         return d
 
 
-def add_emissions(dicts, time, start, stop, value):
+def add_emissions(dicts, time, start, stop, value, gaussian=False):
     for i, d in enumerate(dicts):
         if d['name'] == 'atmos':
             emit_atmos = d.copy()  # create a copy of the original atmosphere input dictionary
             if type(emit_atmos['GtC_emissions']) == float:
                 emit_atmos['GtC_emissions'] = np.zeros(time.shape)  # creat an array to hold the emission scenario
-            emit_atmos['GtC_emissions'][(time > start) & (time <= stop)] = value  # set emissions
+            if gaussian:
+                SD = stop - start
+                center = stop + start
+                A = (value / np.sqrt(2*np.pi)) * 2
+                for j, a in enumerate(emit_atmos['GtC_emissions']):
+                    emit_atmos['GtC_emissions'][j] = A*np.exp(-((j-center)**2) / (2 * SD ** 2))
+            else:
+                emit_atmos['GtC_emissions'][(time > start) & (time <= stop)] = value  # set emissions
             dicts[i] = emit_atmos  # insert the modified dict back into dicts
     return dicts
 
@@ -207,4 +214,8 @@ def add_fancy_labels(axs, vars_to_plot):
         axs[vars_to_plot.index('particle_sinking_time')].set_ylabel(r'Sinking Time (days)')
     if 'GtC_emissions' in vars_to_plot:
         axs[vars_to_plot.index('GtC_emissions')].set_ylabel(r'Emissions (GtC)')
+    if 'DIC_export' in vars_to_plot:
+        axs[vars_to_plot.index('DIC_export')].set_ylabel(r'DIC Export (mol m$^{-3}$ yr$^{-1}$)', fontsize=8)
+    if 'TA_export' in vars_to_plot:
+        axs[vars_to_plot.index('TA_export')].set_ylabel(r'TA Export (mol m$^{-3}$ yr$^{-1}$)', fontsize=8)
     return axs

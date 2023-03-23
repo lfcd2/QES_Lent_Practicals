@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 from OceanTools.tools import plot
 from lfcd2OceanTools.lfcd2Tools import copy_dicts, add_emissions, add_fancy_labels
 
-from default_model import original_model
-from acidification_model import acidification_model
-from my_model import ocean_model_q3
+from Model1Original import original_model
+from Model2Acidification import acidification_model
+from Model3Ballasting import ballasting_model
 
 
 # global variables
@@ -104,7 +104,7 @@ def init_dicts_16():
     return [init_lolat, init_hilat, init_deep, init_atmos]
 
 
-def run():
+def plot_all_three():
     """
     this runs the code
     """
@@ -118,21 +118,17 @@ def run():
 
     vars_to_plot = ['DIC', 'TA', 'pCO2', 'particle_sinking_time', 'f_CaCO3']
 
-    # this line of code runs the model
     time_array, finished_dicts = original_model(copy_dicts(dicts), 2000, 0.5)
-
-    # this unpacks the result that is output from the model
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
-
-    # this uses oscars plot function to plot DIC, TA and pCO2 (you can experiment by adding variables into this list)
-    fig, axs = plot.boxes(time_array, vars_to_plot, final_lolat, final_hilat, final_deep, final_atmos)
+    fig, axs = plot.boxes(time_array, vars_to_plot, final_lolat, final_hilat, final_deep, final_atmos,
+                          label='Original Model')
 
     time_array, finished_dicts = acidification_model(copy_dicts(dicts), 2000, 0.5)
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
     plot.boxes(time_array, vars_to_plot, final_lolat, final_hilat, final_deep, final_atmos,
                axs=axs, label='Acidification Model', ls='dotted')
 
-    time_array, finished_dicts = ocean_model_q3(copy_dicts(dicts), 2000, 0.5)
+    time_array, finished_dicts = ballasting_model(copy_dicts(dicts), 2000, 0.5)
     final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
     plot.boxes(time_array, vars_to_plot, final_lolat, final_hilat, final_deep, final_atmos,
                axs=axs, label='Ballasting Feedback Model', ls='dashed')
@@ -140,6 +136,7 @@ def run():
     plt.suptitle('Plot of model variables for different models')
     fig.tight_layout()
     add_fancy_labels(axs, vars_to_plot)
+    axs[-1].set_xlabel('Time (Years)')
     for ax in axs:
         maximum = ax.get_ylim()[1]
         minimum = ax.get_ylim()[0]
@@ -150,39 +147,102 @@ def run():
     plt.savefig('pics/LongQuestionPlot1.png', dpi=600)
     plt.show()
 
-    models = [ocean_model_q3, acidification_model, original_model]
+
+def plot_against_emissions(gauss=False):
+
+    # this line of code runs initialise_dicts which sets up the initial dictionaries
+    init_dicts = init_dicts_16()
+    tmax = 2000  # how many years to simulate (yr)
+    dt = 0.5  # the time step of the simulation (yr)
+    time = np.arange(0, tmax + dt, dt)  # the time axis for the model
+    dicts = add_emissions(copy_dicts(init_dicts), time, 600, 800, 8, gaussian=gauss)
+
+    vars_to_plot = ['DIC', 'TA', 'pCO2', 'particle_sinking_time', 'f_CaCO3']
+    # PLOT THE THREE MODELS INDIVIDUALLY COMPARED TO NO EMISSIONS
+
+    models = [ballasting_model, acidification_model, original_model]
     names = ['Ballasting Feedback', 'Acidification', 'Original']
     for i, model in enumerate(models):
 
+        # DECIDE WHICH VARS TO PLOT
         vars_to_plot = ['DIC', 'pCO2'] if names[i] == 'Original' else vars_to_plot
         vars_to_plot = ['DIC', 'TA', 'pCO2', 'f_CaCO3'] if names[i] == 'Acidification' else vars_to_plot
+        gtype = ""
+        if gauss:
+            vars_to_plot.append('GtC_emissions')
+            gtype = "(Gaussian)"
 
+        # PLOT WITH EMISSIONS
         time_array, finished_dicts = model(copy_dicts(dicts), 2000, 0.5)
         final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
         fig, axs = plot.boxes(time_array, vars_to_plot, final_lolat, final_hilat, final_deep, final_atmos,
                               label='Emissions', ls='solid')
 
+        # PLOT WITHOUT EMISSIONS
         time_array, finished_dicts = model(copy_dicts(init_dicts), 2000, 0.5)
         final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
         plot.boxes(time_array, vars_to_plot, final_lolat, final_hilat, final_deep, final_atmos,
-                   axs=axs, label='No Emissions', ls='dashed')
+                   axs=axs, label='No Emissions', ls='dotted')
 
-        handles, labels = axs[-2].get_legend_handles_labels()
-        handles.pop(1)
-        labels.pop(1)
-        axs[-2].legend(handles, labels)
+        # FORMAT NICELY
         plt.suptitle(f'Plot of model variables for {names[i]} Model')
         fig.tight_layout()
         add_fancy_labels(axs, vars_to_plot)
-        for ax in axs:
-            maximum = ax.get_ylim()[1]
-            minimum = ax.get_ylim()[0]
-            ax.set_ylim(minimum, maximum)
-            ax.fill_between((600, 800), (minimum, minimum), (maximum, maximum), color='lightgray')
+        axs[-1].set_xlabel('Time (Years)')
 
-        plt.savefig(f'pics/LongQuestionPlot{names[i].replace(" ", "")}Model.png', dpi=600)
+        # ADD GREY EMISSION BARS
+        if not gauss:
+            for ax in axs:
+                maximum = ax.get_ylim()[1]
+                minimum = ax.get_ylim()[0]
+                ax.set_ylim(minimum, maximum)
+                ax.fill_between((600, 800), (minimum, minimum), (maximum, maximum), color='lightgray')
+
+        plt.savefig(f'pics/LongQuestionPlot{names[i].replace(" ", "")}Model{gtype}.png', dpi=600)
         plt.show()
 
 
+def plot_export():
+    """
+    this runs the code
+    """
+
+    # this line of code runs initialise_dicts which sets up the initial dictionaries
+    init_dicts = init_dicts_16()
+    tmax = 2000  # how many years to simulate (yr)
+    dt = 0.5  # the time step of the simulation (yr)
+    time = np.arange(0, tmax + dt, dt)  # the time axis for the model
+    dicts = add_emissions(copy_dicts(init_dicts), time, 600, 800, 8)
+
+    vars_to_plot = ['DIC_export', 'TA_export', 'f_CaCO3', 'exp']
+
+    time_array, finished_dicts = ballasting_model(copy_dicts(dicts), 2000, 0.5)
+    final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
+    fig, axs = plot.boxes(time_array, vars_to_plot, final_lolat, final_hilat,
+                          ls='dashed', label='Ballasting Model')
+
+    time_array, finished_dicts = acidification_model(copy_dicts(dicts), 2000, 0.5)
+    final_lolat, final_hilat, final_deep, final_atmos = finished_dicts
+    fig, axs = plot.boxes(time_array, vars_to_plot, final_lolat, final_hilat,
+                          axs=axs, label='Acidification Model', ls='dotted')
+
+    fig.tight_layout()
+    add_fancy_labels(axs, vars_to_plot)
+    axs[-1].set_xlabel('Time (Years)')
+
+    # ADD GREY EMISSION BARS
+    for ax in axs:
+        maximum = ax.get_ylim()[1]
+        minimum = ax.get_ylim()[0]
+        ax.set_ylim(minimum, maximum)
+        ax.fill_between((600, 800), (minimum, minimum), (maximum, maximum), color='lightgray')
+
+    plt.savefig(f'pics/LongQuestionPlot2.png', dpi=600)
+    plt.show()
+
+
 if __name__ == '__main__':
-    run()
+    plot_export()
+    # plot_all_three()
+    # plot_against_emissions(gauss=False)
+    # plot_against_emissions(gauss=True)

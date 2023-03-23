@@ -27,7 +27,17 @@ rho_org = 1200
 rho_CaCO3 = 2700
 
 
-def ocean_model_q3(dicts, tmax, dt):
+def calculate_rho_p(f_caco3):
+    return (rho_org + f_caco3 * 10 / 3 * rho_org) / (1 + f_caco3 * 10 / 3 * rho_org / rho_CaCO3)
+
+
+def calculate_sinking_time(f_caco3, initial_density, depth):
+    rho_p = calculate_rho_p(f_caco3)
+    v = particle_velocity * (rho_p - 1000) / (initial_density - 1000)
+    return depth / v
+
+
+def ballasting_model(dicts, tmax, dt):
     """Run the ocean model for a given time period and return the results for each box.
 
     Parameters
@@ -54,7 +64,7 @@ def ocean_model_q3(dicts, tmax, dt):
     # identify which variables will change with time - we will iterate over these lists
     model_vars = ['T', 'S', 'DIC', 'TA', 'PO4']
     atmos_model_vars = ['moles_CO2', 'pCO2']
-    track_vars = ['f_CaCO3', 'particle_sinking_time', 'exp']
+    track_vars = ['f_CaCO3', 'particle_sinking_time', 'exp', 'DIC_export', 'TA_export']
 
     '''
     create copies of the input dictionaries, so we don't modify the originals
@@ -72,6 +82,9 @@ def ocean_model_q3(dicts, tmax, dt):
     for the atmos_model_vars
     '''
     for box in [lolat, hilat, deep]:
+        if box != deep:
+            box['DIC_export'] = 0.
+            box['TA_export'] = 0.
         for k in model_vars:
             box[k] = np.full(time.shape, box[k])
         for k in track_vars:
@@ -144,10 +157,11 @@ def ocean_model_q3(dicts, tmax, dt):
             fluxes[f'dDIC_{box_name}'] = \
                 (box['V'] / box['tau_CO2']) * (box['CO2'][last] - box['K0'][last] * atmos['pCO2'][last] * 1e-3) * dt
 
-            rho_p = (rho_org + box['f_CaCO3'][last] * 10 / 3 * rho_org) / (
-                    1 + box['f_CaCO3'][last] * 10 / 3 * rho_org / rho_CaCO3)
-            v = particle_velocity * (rho_p - 1000) / (box['rho_particle'] - 1000)
-            box['particle_sinking_time'][last] = box['depth'] / v
+            box['particle_sinking_time'][last] = calculate_sinking_time(box['f_CaCO3'][last],
+                                                                        box['rho_particle'],
+                                                                        box['depth'])
+            if i == tmax/dt - 1:
+                box['particle_sinking_time'][i+1] = box['particle_sinking_time'][last]
             box['exp'][i] = np.exp(- box['k_ballast'] * box['particle_sinking_time'][last])
 
             # Productivity
@@ -155,9 +169,11 @@ def ocean_model_q3(dicts, tmax, dt):
 
             # productivity on DIC (we add 106 here because the bio pump is favourable for DIC, but unfavourable for TA)
             fluxes[f'prod_DIC_{box_name}'] = fluxes[f'prod_PO4_{box_name}'] * (106 * box['f_CaCO3'][last] + 106)
+            box['DIC_export'][i] = fluxes[f'prod_DIC_{box_name}'] / (dt*box['V'])
 
             # productivity on TA
             fluxes[f'prod_TA_{box_name}'] = fluxes[f'prod_PO4_{box_name}'] * (106 * box['f_CaCO3'][last] * 2 - 18)
+            box['TA_export'][i] = fluxes[f'prod_TA_{box_name}'] / (dt*box['V'])
 
             # calculate emissions flux
         fluxes['emissions'] = atmos['GtC_emissions'][last] * 1e15 / 12 * dt
