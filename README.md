@@ -15,4 +15,6 @@
 
 [This](lfcd2OceanTools) folder provides modified versions of [Oscars' plot functions](https://github.com/Quantitative-Environmental-Science/OceanTools), as well as other minor streamlining functions.
 
-Note: I have added lots of annotations to Oscar's code and reformatted to improve readability.
+[Changes](Changes.md) made to the model
+
+Note: I have also added lots of annotations to Oscar's code and reformatted to improve readability.
