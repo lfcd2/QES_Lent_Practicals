@@ -5,7 +5,7 @@
 
 [Practical 12](Practical%2012)
 
-[Practical 13 (Not fully annotated)](Practical%2013)
+[Practical 13](Practical%2013)
 
 [Practical 14](Practical%2014)
 
@@ -17,4 +17,4 @@
 
 [Changes](Changes.md) made to the model
 
-Note: I have also added lots of annotations to Oscar's code and reformatted to improve readability.
+Note: I have also added lots of annotations to Oscar's code and reformatted to improve readability, and the code may therefore appear different from the sample answers.
