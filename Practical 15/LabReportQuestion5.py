@@ -63,8 +63,15 @@ def run():
     axs[2].set_xlabel('Time (Years)')
     axs[1].legend(loc=(0.7, 0.6))
     axs[2].legend(loc='lower right')
-    plt.suptitle('Plot of model variables against time')
+    # plt.suptitle('Plot of model variables against time')
     fig.tight_layout()
+
+    for ax in axs:
+        maximum = ax.get_ylim()[1]
+        minimum = ax.get_ylim()[0]
+        ax.set_ylim(minimum, maximum)
+        ax.fill_between((200, 400), (minimum, minimum), (maximum, maximum), color='lightgray')
+
     # plots it
     plt.savefig('Lab_Report_Q5_Output.png', dpi=600)
     plt.show()
