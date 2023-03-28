@@ -124,7 +124,7 @@ def question_4():
 
     axs[-1].set_xlabel('Time (Years)')
     axs[-1].set_ylabel('Emissions (GtC)')
-    axs[1].set_ylabel('pCO2 (ppm)')
+    axs[1].set_ylabel(r'pCO$_2$ (ppm)')
     axs[0].set_ylabel(r'DIC (mol m$^{-3}$)')
     plt.suptitle('Plots of model variables against time')
     plt.savefig('Lab_Report_Q4_Output.png', dpi=600)

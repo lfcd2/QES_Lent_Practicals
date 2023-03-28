@@ -57,7 +57,7 @@ def run():
     ax = axs[0]
     ax.set_ylim(200, 1150)
     ax.set_xlim(0, tmax)
-    ax.set_ylabel('pCO2 (ppm)')
+    ax.set_ylabel(r'pCO$_2$ (ppm)')
     axs[2].set_ylabel(r'TA (mol m$^{-3}$)')
     axs[1].set_ylabel(r'DIC (mol m$^{-3}$)')
     axs[2].set_xlabel('Time (Years)')
