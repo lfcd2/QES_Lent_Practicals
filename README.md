@@ -13,7 +13,7 @@
 
 [Long Answer Question 3](LongQuestion3)
 
-[This](lfcd2OceanTools) folder provides modified versions of [Oscars' plot functions](https://github.com/Quantitative-Environmental-Science/OceanTools), as well as other minor streamlining functions.
+[This](newOceanTools) folder provides modified versions of [Oscars' plot functions](https://github.com/Quantitative-Environmental-Science/OceanTools), as well as other minor streamlining functions.
 
 [Changes](Changes.md) made to the model
 

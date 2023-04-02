@@ -1,6 +1,6 @@
 from P4main import initialise_dicts_14, ocean_model_p14
 from OceanTools.tools import plot
-from lfcd2OceanTools.lfcd2Tools import copy_dicts
+from newOceanTools.newTools import copy_dicts
 import matplotlib.pyplot as plt
 
 

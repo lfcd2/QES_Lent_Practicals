@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from OceanTools.tools import plot
-from lfcd2OceanTools.lfcd2Tools import copy_dicts
+from newOceanTools.newTools import copy_dicts
 
 # global variables
 V_ocean = 1.34e18  # volume of the ocean in m3

@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from OceanTools.tools import plot
-from lfcd2OceanTools.lfcd2Tools import copy_dicts, add_emissions, add_fancy_labels
+from newOceanTools.newTools import copy_dicts, add_emissions, add_fancy_labels
 
 from Model1Original import original_model
 from Model2Acidification import acidification_model

@@ -4,7 +4,7 @@ Models are placed in separate files and imported for readability.
 
 Models now take a list of dicts rather than a whole range of args.  **TODO: Use \*args to make this optional**
 
-lfcd2OceanTools serves to add more helper functions (and a .py version of working.pyc):
+newOceanTools serves to add more helper functions (and a .py version of working.pyc):
 
 1. add_emissions - adds emissions to the atmosphere dict when given a list of dicts.
 2. add_fancy_labels - formats the ylabels for common variables

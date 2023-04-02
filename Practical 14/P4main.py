@@ -1,9 +1,3 @@
-"""
-Many of the comments were added by Louis De Neve for the sake of poor QES students who are stuck
-Finished, almost completely PEP-8 compliant code for most of the lab report is available on my GitHub:
-https://github.com/lfcd2/QES_Lent_Practicals
-"""
-
 import numpy as np
 import matplotlib.pyplot as plt
 from cbsyst import Csys

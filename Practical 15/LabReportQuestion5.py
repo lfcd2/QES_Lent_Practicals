@@ -1,11 +1,5 @@
-"""
-Many of the comments were added by Louis De Neve for the sake of poor QES students who are stuck
-Finished, almost completely PEP-8 compliant code for most of the lab report is available on my GitHub:
-https://github.com/lfcd2/QES_Lent_Practicals
-"""
-
 from P5main import initialise_dicts_15, ocean_model_p15
-from lfcd2OceanTools.lfcd2Tools import copy_dicts, Modifier, modify_dicts, add_emissions
+from newOceanTools.newTools import copy_dicts, Modifier, modify_dicts, add_emissions
 import numpy as np
 from OceanTools.tools import plot
 import matplotlib.pyplot as plt
