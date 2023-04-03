@@ -1,6 +1,8 @@
 # QES_Lent_Practicals
 #### QES Lent Practicals and Lab Report
 
+Requires Python 3.9+
+
 [Practical 11](Practical%2011)
 
 [Practical 12](Practical%2012)
